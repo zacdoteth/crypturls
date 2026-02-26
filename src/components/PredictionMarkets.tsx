@@ -11,6 +11,7 @@ interface PredictionEvent {
   topOutcome: string;
   probability: number;
   volume24hr: number;
+  totalVolume: number;
   endDate: string;
 }
 
@@ -129,7 +130,7 @@ export default function PredictionMarkets() {
                     {evt.topOutcome} {evt.probability}%
                   </span>
                   <span className="ct-pm-vol">
-                    {formatVolume(evt.volume24hr)} 24h
+                    {formatVolume(evt.totalVolume)} vol
                   </span>
                 </div>
               </a>
