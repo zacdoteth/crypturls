@@ -131,6 +131,9 @@ export default function SourceSection({
       {/* Featured first article */}
       {pageArticles.length > 0 && (
         <div className="ct-featured-article">
+          {pageArticles[0].pubDate && (
+            <span className="ct-featured-time">{timeAgo(pageArticles[0].pubDate)}</span>
+          )}
           <a
             href={pageArticles[0].link}
             target="_blank"
@@ -139,9 +142,6 @@ export default function SourceSection({
           >
             {pageArticles[0].title}
           </a>
-          {pageArticles[0].pubDate && (
-            <span className="ct-article-time">{timeAgo(pageArticles[0].pubDate)}</span>
-          )}
         </div>
       )}
       {/* Rest as dense list */}
