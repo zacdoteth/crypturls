@@ -82,6 +82,38 @@ export const NEWS_SOURCES: SourceConfig[] = [
     feedUrl: "https://bitcoinmagazine.com/feed",
     type: "rss",
   },
+  {
+    key: "bankless",
+    name: "BANKLESS",
+    color: "#E84142",
+    domain: "bankless.com",
+    feedUrl: "https://www.bankless.com/feed",
+    type: "rss",
+  },
+  {
+    key: "thedefiant",
+    name: "THE DEFIANT",
+    color: "#A855F7",
+    domain: "thedefiant.io",
+    feedUrl: "https://thedefiant.io/feed",
+    type: "rss",
+  },
+  {
+    key: "unchained",
+    name: "UNCHAINED",
+    color: "#1DB954",
+    domain: "unchainedcrypto.com",
+    feedUrl: "https://unchainedcrypto.com/feed/",
+    type: "rss",
+  },
+  {
+    key: "rektnews",
+    name: "REKT NEWS",
+    color: "#FF0420",
+    domain: "rekt.news",
+    feedUrl: "https://rekt.news/rss/feed.xml",
+    type: "rss",
+  },
 ];
 
 export const COMMUNITY_SOURCES: SourceConfig[] = [
@@ -140,9 +172,13 @@ export const GRID_LAYOUT = {
   grid1: ["coindesk", "theblock", "cointelegraph"],
   grid2: ["decrypt", "cryptoslate", "messari"],
   grid3: ["blockworks", "dlnews", "bitcoinmag"],
+  grid4: ["bankless", "thedefiant", "unchained"],
   community1: ["rcrypto", "rbitcoin", "biz"],
   community2: ["rethfinance", "rmoonshots", "rsolana"],
 };
+
+// Sources excluded from masonry view (low signal, shitposts)
+export const MASONRY_EXCLUDE = new Set(["biz", "rmoonshots"]);
 
 // CoinGecko coin IDs for the price ticker
 export const PRICE_COINS = [

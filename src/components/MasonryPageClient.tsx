@@ -8,6 +8,7 @@ import FearGreed from "@/components/FearGreed";
 import Footer from "@/components/Footer";
 import { fetchJsonClient } from "@/lib/client-http";
 import { useVisibilityPolling } from "@/lib/use-visibility-polling";
+import { MASONRY_EXCLUDE } from "@/lib/sources";
 import type { FeedData } from "@/lib/feeds";
 
 interface Article {
@@ -72,10 +73,12 @@ export default function MasonryPageClient({ initialFeeds }: MasonryPageClientPro
   useVisibilityPolling(fetchFeeds, 5 * 60 * 1000, !hasInitialFeeds);
 
   // Flatten all sources into individual cards, sorted by recency
+  // Exclude low-signal sources (shitposts, spam subreddits)
   const cards: MasonryCard[] = useMemo(() => {
     const all: MasonryCard[] = [];
     for (const [key, source] of Object.entries(feeds)) {
       if (!source.articles?.length) continue;
+      if (MASONRY_EXCLUDE.has(key)) continue;
       source.articles.forEach((article, i) => {
         all.push({
           title: article.title,
@@ -85,7 +88,7 @@ export default function MasonryPageClient({ initialFeeds }: MasonryPageClientPro
           sourceName: source.name,
           sourceColor: source.color,
           sourceDomain: source.domain,
-          isFeatured: i === 0, // first article from each source gets featured treatment
+          isFeatured: i === 0,
         });
       });
     }

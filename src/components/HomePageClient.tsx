@@ -51,6 +51,10 @@ const SOURCE_META: Record<string, { name: string; color: string; domain: string 
   blockworks: { name: "BLOCKWORKS", color: "#E8453C", domain: "blockworks.co" },
   dlnews: { name: "DL NEWS", color: "#FF4081", domain: "dlnews.com" },
   bitcoinmag: { name: "BITCOIN MAGAZINE", color: "#FF6B35", domain: "bitcoinmagazine.com" },
+  bankless: { name: "BANKLESS", color: "#E84142", domain: "bankless.com" },
+  thedefiant: { name: "THE DEFIANT", color: "#A855F7", domain: "thedefiant.io" },
+  unchained: { name: "UNCHAINED", color: "#1DB954", domain: "unchainedcrypto.com" },
+  rektnews: { name: "REKT NEWS", color: "#FF0420", domain: "rekt.news" },
   rcrypto: { name: "R/CRYPTOCURRENCY", color: "#FF4500", domain: "reddit.com" },
   rbitcoin: { name: "R/BITCOIN", color: "#F7931A", domain: "reddit.com" },
   rmoonshots: { name: "R/CRYPTOMOONSHOTS", color: "#9B59B6", domain: "reddit.com" },
@@ -175,8 +179,21 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
         })}
       </div>
 
-      {/* KOL ALPHA — hidden until functional */}
-      {/* <KolAlpha /> */}
+      {/* SOURCE GRID 4 — Alpha sources */}
+      <div className="ct-source-grid">
+        {GRID_LAYOUT.grid4.map((key) => {
+          const s = getSource(key);
+          return (
+            <SourceSection
+              key={key}
+              name={s.name}
+              domain={s.domain}
+              color={s.color}
+              articles={s.articles}
+            />
+          );
+        })}
+      </div>
 
       {/* C4DOTGG — daily curated crypto thread */}
       <C4dotgg />
