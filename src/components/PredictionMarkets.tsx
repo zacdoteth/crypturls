@@ -8,6 +8,7 @@ interface PredictionEvent {
   id: string;
   title: string;
   slug: string;
+  url: string;
   topOutcome: string;
   probability: number;
   volume24hr: number;
@@ -15,7 +16,13 @@ interface PredictionEvent {
   endDate: string;
 }
 
+interface PredictionsData {
+  polymarket: PredictionEvent[];
+  kalshi: PredictionEvent[];
+}
+
 const PM_COLOR = "#6F5CE6";
+const KALSHI_COLOR = "#00D1FF";
 
 function formatVolume(raw: number | string): string {
   const n = Number(raw) || 0;
@@ -24,120 +31,135 @@ function formatVolume(raw: number | string): string {
   return `$${Math.round(n)}`;
 }
 
+function LoadingCol() {
+  return (
+    <div className="ct-pm-col">
+      <div className="ct-pm-col-header">
+        <div className="ct-loading-row" style={{ width: 120, height: 14 }} />
+      </div>
+      <div className="ct-loading-row" />
+      <div className="ct-loading-row" />
+      <div className="ct-loading-row" />
+    </div>
+  );
+}
+
+function MarketColumn({
+  events,
+  sourceName,
+  faviconDomain,
+  color,
+  siteUrl,
+}: {
+  events: PredictionEvent[];
+  sourceName: string;
+  faviconDomain: string;
+  color: string;
+  siteUrl: string;
+}) {
+  return (
+    <div className="ct-pm-col">
+      <div className="ct-pm-col-header">
+        <div className="ct-pm-header-left">
+          <img
+            src={`https://www.google.com/s2/favicons?domain=${faviconDomain}&sz=32`}
+            alt={sourceName}
+            width="18"
+            height="18"
+            style={{ borderRadius: 3, flexShrink: 0 }}
+          />
+          <span className="ct-source-name" style={{ color }}>
+            {sourceName}
+          </span>
+        </div>
+        <a
+          href={siteUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ct-more-link"
+          style={{ color, padding: 0, margin: 0 }}
+        >
+          MORE ···
+        </a>
+      </div>
+      {events.map((evt) => (
+        <a
+          key={evt.id}
+          href={evt.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ct-pm-row"
+        >
+          <div className="ct-pm-question">{evt.title}</div>
+          <div className="ct-pm-bottom">
+            <span
+              className="ct-pm-prob"
+              style={{
+                color: evt.probability >= 50 ? "#00FF88" : "#FF4757",
+              }}
+            >
+              {evt.topOutcome} {evt.probability}%
+            </span>
+            <span className="ct-pm-vol">
+              {formatVolume(evt.totalVolume)} vol
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export default function PredictionMarkets() {
-  const [events, setEvents] = useState<PredictionEvent[]>([]);
+  const [data, setData] = useState<PredictionsData | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
-      const data = await fetchJsonClient<PredictionEvent[]>("/api/predictions", 10000);
-      setEvents(data);
+      const d = await fetchJsonClient<PredictionsData>("/api/predictions", 10000);
+      setData(d);
     } catch {
       // silent
     }
   }, []);
   useVisibilityPolling(fetchData, 5 * 60 * 1000);
 
-  if (events.length === 0) {
-    return (
-      <div className="ct-pm-section">
-        <div className="ct-pm-header">
-          <div className="ct-pm-header-left">
-            <img
-              src="https://www.google.com/s2/favicons?domain=polymarket.com&sz=32"
-              alt="Polymarket"
-              width="18"
-              height="18"
-              style={{ borderRadius: 3, flexShrink: 0 }}
-            />
-            <span className="ct-source-name" style={{ color: PM_COLOR }}>
-              PREDICTION MARKETS
-            </span>
-            <span className="ct-pm-badge">LIVE ODDS</span>
-          </div>
-        </div>
-        <div className="ct-pm-grid">
-          <div className="ct-pm-col">
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-          </div>
-          <div className="ct-pm-col">
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-          </div>
-          <div className="ct-pm-col">
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Split into 3 columns
-  const colSize = Math.ceil(events.length / 3);
-  const col1 = events.slice(0, colSize);
-  const col2 = events.slice(colSize, colSize * 2);
-  const col3 = events.slice(colSize * 2);
+  const hasData = data && (data.polymarket.length > 0 || data.kalshi.length > 0);
 
   return (
     <div className="ct-pm-section">
       <div className="ct-pm-header">
         <div className="ct-pm-header-left">
-          <img
-            src="https://www.google.com/s2/favicons?domain=polymarket.com&sz=32"
-            alt="Polymarket"
-            width="18"
-            height="18"
-            style={{ borderRadius: 3, flexShrink: 0 }}
-          />
           <span className="ct-source-name" style={{ color: PM_COLOR }}>
             PREDICTION MARKETS
           </span>
           <span className="ct-pm-badge">LIVE ODDS</span>
         </div>
-        <a
-          href="https://polymarket.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ct-more-link"
-          style={{ color: PM_COLOR, padding: 0, margin: 0 }}
-        >
-          MORE ···
-        </a>
       </div>
 
       <div className="ct-pm-grid">
-        {[col1, col2, col3].map((col, ci) => (
-          <div key={ci} className="ct-pm-col">
-            {col.map((evt) => (
-              <a
-                key={evt.id}
-                href={`https://polymarket.com/event/${evt.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ct-pm-row"
-              >
-                <div className="ct-pm-question">{evt.title}</div>
-                <div className="ct-pm-bottom">
-                  <span
-                    className="ct-pm-prob"
-                    style={{
-                      color: evt.probability >= 50 ? "#00FF88" : "#FF4757",
-                    }}
-                  >
-                    {evt.topOutcome} {evt.probability}%
-                  </span>
-                  <span className="ct-pm-vol">
-                    {formatVolume(evt.totalVolume)} vol
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
-        ))}
+        {!hasData ? (
+          <>
+            <LoadingCol />
+            <LoadingCol />
+          </>
+        ) : (
+          <>
+            <MarketColumn
+              events={data.polymarket}
+              sourceName="POLYMARKET"
+              faviconDomain="polymarket.com"
+              color={PM_COLOR}
+              siteUrl="https://polymarket.com"
+            />
+            <MarketColumn
+              events={data.kalshi}
+              sourceName="KALSHI"
+              faviconDomain="kalshi.com"
+              color={KALSHI_COLOR}
+              siteUrl="https://kalshi.com"
+            />
+          </>
+        )}
       </div>
     </div>
   );
