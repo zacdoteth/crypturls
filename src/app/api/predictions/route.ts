@@ -17,6 +17,8 @@ export interface PredictionEvent {
 interface GammaMarket {
   outcomePrices: string;
   outcomes: string;
+  groupItemTitle: string;
+  question: string;
   volume24hr: number;
   volume: number;
 }
@@ -27,6 +29,15 @@ interface GammaEvent {
   slug: string;
   endDate: string;
   markets: GammaMarket[];
+}
+
+function parseYesPrice(m: GammaMarket): number {
+  try {
+    const prices = JSON.parse(m.outcomePrices || "[]").map(Number);
+    return prices[0] || 0; // Yes is always index 0
+  } catch {
+    return 0;
+  }
 }
 
 export async function GET() {
@@ -53,26 +64,40 @@ export async function GET() {
           totalVol += Number(m.volume) || 0;
         }
 
-        // Use first market for outcome prices
-        const market = e.markets[0];
+        const isMultiOutcome = e.markets.length > 2;
         let topOutcome = "Yes";
         let probability = 50;
 
-        try {
-          const pricesRaw = market.outcomePrices;
-          const outcomesRaw = market.outcomes;
-          if (pricesRaw && outcomesRaw) {
-            const priceStrs: string[] = JSON.parse(pricesRaw);
-            const prices = priceStrs.map(Number);
-            const outcomes: string[] = JSON.parse(outcomesRaw);
-            if (prices.length > 0 && outcomes.length > 0) {
-              const maxIdx = prices.indexOf(Math.max(...prices));
-              topOutcome = outcomes[maxIdx] || "Yes";
-              probability = Math.round(prices[maxIdx] * 100);
+        if (isMultiOutcome) {
+          // Multi-outcome: find the market with the highest "Yes" price
+          // Each market is "Will X happen?" — the Yes price = probability of X
+          let bestPrice = 0;
+          let bestLabel = "";
+          for (const m of e.markets) {
+            const yesPrice = parseYesPrice(m);
+            if (yesPrice > bestPrice) {
+              bestPrice = yesPrice;
+              bestLabel = m.groupItemTitle || "";
             }
           }
-        } catch {
-          // keep defaults
+          if (bestLabel && bestPrice > 0) {
+            topOutcome = bestLabel;
+            probability = Math.round(bestPrice * 100);
+          }
+        } else {
+          // Binary market: single Yes/No
+          const market = e.markets[0];
+          try {
+            const prices = JSON.parse(market.outcomePrices || "[]").map(Number);
+            const outcomes: string[] = JSON.parse(market.outcomes || "[]");
+            if (prices.length > 0 && outcomes.length > 0) {
+              // Show the "Yes" side — more intuitive
+              topOutcome = "Yes";
+              probability = Math.round(prices[0] * 100);
+            }
+          } catch {
+            // keep defaults
+          }
         }
 
         return {
