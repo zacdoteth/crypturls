@@ -728,23 +728,23 @@ a.ct-c4-item { cursor:pointer; }
 }
 .ct-pm-col-header {
   display:flex; justify-content:space-between; align-items:center;
-  padding:10px 14px 8px; border-bottom:1px solid rgba(30,35,64,0.5);
+  padding:8px 12px 6px; border-bottom:1px solid rgba(30,35,64,0.5);
 }
 .ct-pm-header-left {
   display:flex; align-items:center; gap:8px;
 }
 .ct-pm-card {
-  display:block; padding:10px 14px; border-bottom:1px solid rgba(30,35,64,0.5);
+  display:block; padding:7px 12px; border-bottom:1px solid rgba(30,35,64,0.5);
   text-decoration:none; color:inherit; transition:background .15s; cursor:pointer;
 }
 .ct-pm-card:last-child { border-bottom:none; }
 .ct-pm-card:hover { background:rgba(20,24,40,0.4); }
 .ct-pm-card-top {
-  display:flex; align-items:baseline; justify-content:space-between; gap:8px;
-  margin-bottom:8px;
+  display:flex; align-items:baseline; justify-content:space-between; gap:6px;
+  margin-bottom:5px;
 }
 .ct-pm-question {
-  font-size:14px; font-weight:700; color:#E8ECF4; line-height:1.35;
+  font-size:13px; font-weight:700; color:#E8ECF4; line-height:1.3;
   font-family:'Outfit',sans-serif; letter-spacing:-0.1px;
   flex:1; min-width:0;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
@@ -758,36 +758,34 @@ a.ct-c4-item { cursor:pointer; }
 
 /* Segment row — all outcomes on one line */
 .ct-pm-segs {
-  display:flex; gap:4px;
+  display:flex; gap:3px;
 }
 .ct-pm-seg {
   flex:1; min-width:0; position:relative; overflow:hidden;
-  height:26px; border-radius:4px; display:flex; align-items:center;
-  padding:0 8px; gap:4px;
+  height:20px; border-radius:3px; display:flex; align-items:center;
+  padding:0 6px; gap:3px;
   background:rgba(255,255,255,0.02);
 }
 .ct-pm-seg-fill {
-  position:absolute; left:0; top:0; bottom:0; border-radius:4px;
-  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change:width;
+  position:absolute; left:0; top:0; bottom:0; border-radius:3px;
 }
 .ct-pm-seg-label {
   position:relative; z-index:1; flex:1; min-width:0;
-  font-size:10px; font-weight:500; color:rgba(255,255,255,0.55);
+  font-size:9px; font-weight:500; color:rgba(255,255,255,0.5);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
 }
 .ct-pm-seg-pct {
   position:relative; z-index:1; flex-shrink:0;
-  font-size:11px; font-weight:700; color:rgba(255,255,255,0.85);
+  font-size:10px; font-weight:700; color:rgba(255,255,255,0.8);
   font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
 }
 @media (max-width: 640px) {
   .ct-pm-grid { grid-template-columns:1fr; }
-  .ct-pm-segs { gap:3px; }
-  .ct-pm-seg { height:24px; padding:0 6px; }
-  .ct-pm-seg-label { font-size:9px; }
-  .ct-pm-seg-pct { font-size:10px; }
+  .ct-pm-segs { gap:2px; }
+  .ct-pm-seg { height:18px; padding:0 5px; }
+  .ct-pm-seg-label { font-size:8.5px; }
+  .ct-pm-seg-pct { font-size:9px; }
 }
 
 /* ── REG TICKER ── */
@@ -1001,16 +999,16 @@ a.ct-c4-item { cursor:pointer; }
 /* ── STICKY VIDEO PLAYER ── */
 .ct-sticky-player {
   position:fixed; z-index:9999;
-  width:380px; background:#0B0F1E;
-  border:1px solid #1E2340; border-radius:12px;
+  width:380px; background:#0F1328;
+  border:1px solid #2A3050; border-radius:12px;
   box-shadow:0 8px 40px rgba(0,0,0,.7), 0 0 0 1px rgba(0,255,136,.08);
   overflow:hidden;
 }
 .ct-sticky-player.ct-sp-mini { width:260px; }
 .ct-sp-header {
   display:flex; align-items:center; justify-content:space-between;
-  padding:8px 12px; background:#0D1225; cursor:grab;
-  border-bottom:1px solid #1E2340; user-select:none;
+  padding:8px 12px; background:#161D35; cursor:grab;
+  border-bottom:1px solid #2A3050; user-select:none;
 }
 .ct-sp-header:active { cursor:grabbing; }
 .ct-sp-title {
@@ -1021,12 +1019,12 @@ a.ct-c4-item { cursor:pointer; }
 }
 .ct-sp-controls { display:flex; gap:4px; flex-shrink:0; }
 .ct-sp-btn {
-  background:#141828; border:1px solid #1E2340; color:#788098;
+  background:#1C2440; border:1px solid #2A3050; color:#8890A8;
   width:24px; height:24px; border-radius:5px; font-size:12px;
   cursor:pointer; display:flex; align-items:center; justify-content:center;
   transition:all .15s; font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
 }
-.ct-sp-btn:hover { background:#1E2340; color:#FFF; }
+.ct-sp-btn:hover { background:#2A3050; color:#FFF; }
 .ct-sp-embed { aspect-ratio:16/9; width:100%; background:#000; position:relative; }
 .ct-sp-short .ct-sp-embed { aspect-ratio:9/16; }
 .ct-sp-resize {

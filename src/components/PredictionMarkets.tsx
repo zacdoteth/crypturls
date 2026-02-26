@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback } from "react";
 import { fetchJsonClient } from "@/lib/client-http";
 import { useVisibilityPolling } from "@/lib/use-visibility-polling";
 
@@ -38,41 +38,19 @@ const SEG_ALPHA = [0.18, 0.12, 0.08];
 function SegmentRow({
   outcomes,
   rgb,
-  delay,
 }: {
   outcomes: PredictionOutcome[];
   rgb: string;
-  delay: number;
 }) {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setVisible(true);
-          obs.disconnect();
-        }
-      },
-      { threshold: 0.6, rootMargin: "-40px 0px" }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
   return (
-    <div className="ct-pm-segs" ref={ref}>
+    <div className="ct-pm-segs">
       {outcomes.map((o, i) => (
         <div className="ct-pm-seg" key={i}>
           <div
             className="ct-pm-seg-fill"
             style={{
-              width: visible ? `${o.probability}%` : "0%",
+              width: `${o.probability}%`,
               background: `rgba(${rgb},${SEG_ALPHA[i] ?? 0.18})`,
-              transitionDelay: `${delay + i * 100}ms`,
             }}
           />
           <span className="ct-pm-seg-label">{o.label}</span>
@@ -87,12 +65,10 @@ function MarketCard({
   event,
   color,
   rgb,
-  cardIndex,
 }: {
   event: PredictionEvent;
   color: string;
   rgb: string;
-  cardIndex: number;
 }) {
   return (
     <a
@@ -105,7 +81,7 @@ function MarketCard({
         <div className="ct-pm-question">{event.title}</div>
         <span className="ct-pm-vol" style={{ color }}>{formatVolume(event.volume24h)} 24h</span>
       </div>
-      <SegmentRow outcomes={event.outcomes} rgb={rgb} delay={cardIndex * 120} />
+      <SegmentRow outcomes={event.outcomes} rgb={rgb} />
     </a>
   );
 }
@@ -150,8 +126,8 @@ function MarketColumn({
           MORE ···
         </a>
       </div>
-      {events.map((evt, i) => (
-        <MarketCard key={evt.id} event={evt} color={color} rgb={rgb} cardIndex={i} />
+      {events.map((evt) => (
+        <MarketCard key={evt.id} event={evt} color={color} rgb={rgb} />
       ))}
     </div>
   );
