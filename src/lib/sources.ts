@@ -90,7 +90,7 @@ export const COMMUNITY_SOURCES: SourceConfig[] = [
     name: "R/CRYPTOCURRENCY",
     color: "#FF4500",
     domain: "reddit.com",
-    feedUrl: "https://www.reddit.com/r/CryptoCurrency/hot.json?limit=8",
+    feedUrl: "https://www.reddit.com/r/CryptoCurrency/top.json?t=day&limit=8",
     type: "reddit",
   },
   {
@@ -98,7 +98,7 @@ export const COMMUNITY_SOURCES: SourceConfig[] = [
     name: "R/BITCOIN",
     color: "#F7931A",
     domain: "reddit.com",
-    feedUrl: "https://www.reddit.com/r/Bitcoin/hot.json?limit=8",
+    feedUrl: "https://www.reddit.com/r/Bitcoin/top.json?t=day&limit=8",
     type: "reddit",
   },
   {
@@ -106,7 +106,7 @@ export const COMMUNITY_SOURCES: SourceConfig[] = [
     name: "R/CRYPTOMOONSHOTS",
     color: "#9B59B6",
     domain: "reddit.com",
-    feedUrl: "https://www.reddit.com/r/CryptoMoonShots/hot.json?limit=8",
+    feedUrl: "https://www.reddit.com/r/CryptoMoonShots/top.json?t=day&limit=8",
     type: "reddit",
   },
   {
@@ -114,7 +114,7 @@ export const COMMUNITY_SOURCES: SourceConfig[] = [
     name: "R/ETHFINANCE",
     color: "#627EEA",
     domain: "reddit.com",
-    feedUrl: "https://www.reddit.com/r/ethfinance/hot.json?limit=8",
+    feedUrl: "https://www.reddit.com/r/ethfinance/top.json?t=day&limit=8",
     type: "reddit",
   },
   {
@@ -122,7 +122,7 @@ export const COMMUNITY_SOURCES: SourceConfig[] = [
     name: "R/SOLANA",
     color: "#14F195",
     domain: "reddit.com",
-    feedUrl: "https://www.reddit.com/r/solana/hot.json?limit=8",
+    feedUrl: "https://www.reddit.com/r/solana/top.json?t=day&limit=8",
     type: "reddit",
   },
   {

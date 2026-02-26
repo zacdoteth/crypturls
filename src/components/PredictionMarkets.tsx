@@ -22,8 +22,8 @@ interface PredictionsData {
   kalshi: PredictionEvent[];
 }
 
-const PM_COLOR = "#6F5CE6";
-const PM_RGB = "111,92,230";
+const PM_COLOR = "#2E5CFF";
+const PM_RGB = "46,92,255";
 const KALSHI_COLOR = "#4DE4B2";
 const KALSHI_RGB = "77,228,178";
 

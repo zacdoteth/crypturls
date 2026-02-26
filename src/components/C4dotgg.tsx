@@ -25,42 +25,80 @@ interface C4Feed {
 
 const C4_COLOR = "#00D4FF";
 
-function ItemLink({
-  item,
-}: {
-  item: C4Item;
-}) {
+/** Build a readable headline from the raw C4 item */
+function toHeadline(item: C4Item): string {
+  // If there's descriptive text beyond just the handle, use it
+  const text = item.text?.trim() || "";
+  const handle = item.handle?.trim() || "";
+
+  if (text && text !== handle) {
+    return text;
+  }
+  // Bare handle with no description — just show the name
+  if (handle) return handle;
+  return text || "—";
+}
+
+function ArticleRow({ item }: { item: C4Item }) {
   const href = item.url || (item.handle ? `https://x.com/${item.handle}` : undefined);
+  const headline = toHeadline(item);
 
   const inner = (
-    <>
-      {item.handle && (
-        <span className="ct-c4-handle">@{item.handle}</span>
-      )}
-      {item.text && item.text !== item.handle && (
-        <span className="ct-c4-text">{item.text}</span>
-      )}
-      {item.tags?.map((tag, ti) => (
-        <span key={ti} className="ct-c4-tag">
-          {tag}
-        </span>
-      ))}
-    </>
+    <div className="ct-article-row">
+      <span className="ct-article-title">{headline}</span>
+    </div>
   );
 
   if (href) {
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="ct-c4-item"
-      >
+      <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
         {inner}
       </a>
     );
   }
-  return <div className="ct-c4-item">{inner}</div>;
+  return inner;
+}
+
+function C4Column({
+  label,
+  items,
+}: {
+  label: string;
+  items: C4Item[];
+}) {
+  if (items.length === 0) return null;
+
+  // Featured first item + rest as article rows (matches SourceSection pattern)
+  const featured = items[0];
+  const rest = items.slice(1, 5);
+  const featuredHref = featured.url || (featured.handle ? `https://x.com/${featured.handle}` : undefined);
+
+  return (
+    <div className="ct-source-section">
+      <div className="ct-source-header">
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <img
+            src="https://www.google.com/s2/favicons?domain=t.me&sz=32"
+            alt=""
+            style={{ width: 14, height: 14, borderRadius: 2, opacity: 0.8 }}
+          />
+          <span className="ct-source-name" style={{ color: C4_COLOR }}>{label}</span>
+        </div>
+      </div>
+
+      {featuredHref ? (
+        <a href={featuredHref} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+          <div className="ct-featured-title">{toHeadline(featured)}</div>
+        </a>
+      ) : (
+        <div className="ct-featured-title">{toHeadline(featured)}</div>
+      )}
+
+      {rest.map((item, i) => (
+        <ArticleRow key={i} item={item} />
+      ))}
+    </div>
+  );
 }
 
 export default function C4dotgg() {
@@ -82,104 +120,42 @@ export default function C4dotgg() {
 
   if (!feed && !loading) return null;
 
-  return (
-    <div className="ct-c4-section">
-      <div className="ct-c4-header">
-        <div className="ct-c4-header-left">
-          <img
-            src="https://www.google.com/s2/favicons?domain=t.me&sz=32"
-            alt=""
-            style={{
-              width: 14,
-              height: 14,
-              borderRadius: 2,
-              opacity: 0.8,
-            }}
-          />
-          <a
-            href="https://t.me/c4dotgg"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ct-source-name ct-source-link"
-            style={{ color: C4_COLOR }}
-          >
-            C4DOTGG
-          </a>
-          <span className="ct-c4-badge">DAILY</span>
-          {feed?.date && (
-            <span className="ct-c4-date">{feed.date}</span>
-          )}
+  if (!feed) {
+    return (
+      <div className="ct-source-grid ct-source-grid-2">
+        <div className="ct-source-section">
+          <div className="ct-loading-row" />
+          <div className="ct-loading-row" />
+          <div className="ct-loading-row" />
         </div>
-        {feed?.postUrl && (
-          <a
-            href={feed.postUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ct-more-link"
-            style={{ color: C4_COLOR, padding: 0, margin: 0 }}
-          >
-            VIEW POST ···
-          </a>
-        )}
+        <div className="ct-source-section">
+          <div className="ct-loading-row" />
+          <div className="ct-loading-row" />
+          <div className="ct-loading-row" />
+        </div>
       </div>
+    );
+  }
 
-      {feed ? (
-        <div className="ct-c4-grid">
-          {(() => {
-            // Col 1: New Projects + Launches (keep sub-headers)
-            // Col 2: News / Updates / Reads — flat list, no sub-headers
-            const col1Sections: C4Section[] = [];
-            const col2Items: C4Item[] = [];
+  // Bucket items into two columns:
+  // Col 1: New Projects + Launches
+  // Col 2: News + Project Updates + Threads/Reads
+  const col1Items: C4Item[] = [];
+  const col2Items: C4Item[] = [];
 
-            for (const s of feed.sections) {
-              const cat = s.category.toLowerCase();
-              if (cat.includes("new project") || cat.includes("launch")) {
-                col1Sections.push(s);
-              } else {
-                // News, Project Updates, Threads/Reads, everything else → flat list
-                col2Items.push(...s.items);
-              }
-            }
+  for (const s of feed.sections) {
+    const cat = s.category.toLowerCase();
+    if (cat.includes("new project") || cat.includes("launch")) {
+      col1Items.push(...s.items);
+    } else {
+      col2Items.push(...s.items);
+    }
+  }
 
-            return (
-              <>
-                <div className="ct-c4-col">
-                  {col1Sections.map((section, si) => (
-                    <div key={si}>
-                      <div className="ct-c4-cat">
-                        {section.emoji && <span>{section.emoji}</span>}
-                        {section.category}
-                      </div>
-                      {section.items.map((item, ii) => (
-                        <ItemLink key={ii} item={item} />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-                <div className="ct-c4-col">
-                  <div className="ct-c4-cat">News / Updates / Reads</div>
-                  {col2Items.map((item, ii) => (
-                    <ItemLink key={ii} item={item} />
-                  ))}
-                </div>
-              </>
-            );
-          })()}
-        </div>
-      ) : loading ? (
-        <div className="ct-c4-grid">
-          <div className="ct-c4-col">
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-          </div>
-          <div className="ct-c4-col">
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-            <div className="ct-loading-row" />
-          </div>
-        </div>
-      ) : null}
+  return (
+    <div className="ct-source-grid ct-source-grid-2">
+      <C4Column label="C4 PROJECTS" items={col1Items} />
+      <C4Column label="C4 NEWS" items={col2Items} />
     </div>
   );
 }

@@ -175,8 +175,8 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
         })}
       </div>
 
-      {/* KOL ALPHA — who are top accounts following */}
-      <KolAlpha />
+      {/* KOL ALPHA — hidden until functional */}
+      {/* <KolAlpha /> */}
 
       {/* C4DOTGG — daily curated crypto thread */}
       <C4dotgg />
