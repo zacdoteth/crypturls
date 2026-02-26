@@ -17,10 +17,11 @@ interface PredictionEvent {
 
 const PM_COLOR = "#6F5CE6";
 
-function formatVolume(n: number): string {
+function formatVolume(raw: number | string): string {
+  const n = Number(raw) || 0;
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${n.toFixed(0)}`;
+  return `$${Math.round(n)}`;
 }
 
 export default function PredictionMarkets() {

@@ -49,8 +49,8 @@ export async function GET() {
         let totalVol24 = 0;
         let totalVol = 0;
         for (const m of e.markets) {
-          totalVol24 += m.volume24hr || 0;
-          totalVol += m.volume || 0;
+          totalVol24 += Number(m.volume24hr) || 0;
+          totalVol += Number(m.volume) || 0;
         }
 
         // Use first market for outcome prices
