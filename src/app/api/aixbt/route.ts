@@ -9,6 +9,7 @@ export interface AixbtProject {
   ticker: string;
   momentum: number;
   snapshot: string;
+  priceChange?: number; // 24h % change from CoinGecko (null if not found)
 }
 
 // Scrape AIXBT surging projects page (no API key needed)
@@ -93,6 +94,32 @@ async function fetchCoinGeckoFallback(): Promise<AixbtProject[]> {
   );
 }
 
+// Fetch top coins from CoinGecko and build a ticker → 24h change map
+async function getPriceChanges(): Promise<Map<string, number>> {
+  try {
+    const coins = await getOrSetCache("cg-markets", 5 * 60 * 1000, async () => {
+      return fetchJsonWithTimeout<
+        Array<{ symbol?: string; price_change_percentage_24h?: number }>
+      >(
+        "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&sparkline=false&price_change_percentage=24h",
+        { timeoutMs: 8000, headers: { "User-Agent": "CryptUrls/1.0" } }
+      );
+    });
+
+    const map = new Map<string, number>();
+    if (Array.isArray(coins)) {
+      for (const c of coins) {
+        if (c.symbol && c.price_change_percentage_24h != null) {
+          map.set(c.symbol.toUpperCase(), c.price_change_percentage_24h);
+        }
+      }
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
 export async function GET() {
   try {
     const projects = await getOrSetCache("aixbt", 10 * 60 * 1000, async () => {
@@ -138,6 +165,14 @@ export async function GET() {
 
       return fetchCoinGeckoFallback();
     });
+
+    // Enrich with 24h price changes from CoinGecko
+    const changes = await getPriceChanges();
+    for (const p of projects) {
+      if (p.ticker && changes.has(p.ticker)) {
+        p.priceChange = changes.get(p.ticker);
+      }
+    }
 
     return NextResponse.json(projects);
   } catch (e) {

@@ -9,6 +9,7 @@ interface AixbtProject {
   ticker: string;
   momentum: number;
   snapshot: string;
+  priceChange?: number;
 }
 
 const AIXBT_PURPLE = "#7B61FF";
@@ -40,6 +41,13 @@ function ProjectRow({ p }: { p: AixbtProject }) {
         <span className={hasSnap ? "ct-aixbt-label" : "ct-aixbt-name"}>{p.name}</span>
         {p.ticker && (
           <span className="ct-aixbt-ticker">${p.ticker}</span>
+        )}
+        {p.priceChange != null && (
+          <span className={`ct-aixbt-pct ${p.priceChange >= 0 ? "up" : "dn"}`}>
+            {p.priceChange >= 0 ? "↑" : "↓"}
+            {p.priceChange >= 0 ? "+" : ""}
+            {p.priceChange.toFixed(1)}%
+          </span>
         )}
         <span
           className="ct-aixbt-score"

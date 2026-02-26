@@ -445,6 +445,12 @@ html, body { background:#080C18 !important; margin:0; padding:0; }
 .ct-aixbt-ticker {
   font-size:11px; color:#566080; font-weight:500;
 }
+.ct-aixbt-pct {
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+  font-size:10.5px; font-weight:600; white-space:nowrap;
+}
+.ct-aixbt-pct.up { color:#00FF88; }
+.ct-aixbt-pct.dn { color:#FF4757; }
 .ct-aixbt-score {
   font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
   font-size:10.5px; font-weight:700; margin-left:auto; flex-shrink:0;
