@@ -146,9 +146,15 @@ async function fetchKalshi(): Promise<PredictionEvent[]> {
   return events
     .filter((e) => e.markets?.length > 0)
     .map((e) => {
-      let vol24 = 0;
+      // Kalshi volume_24h is in contracts, not dollars — use total volume for sorting
+      // and compute approximate dollar volume from contracts × price
+      let totalContracts = 0;
+      let dollarVol = 0;
       for (const m of e.markets) {
-        vol24 += Number(m.volume_24h) || 0;
+        const contracts = Number(m.volume) || 0;
+        totalContracts += contracts;
+        // yes_ask is in cents (0-100), convert to dollar fraction
+        dollarVol += contracts * (Number(m.yes_ask) || 0) / 100;
       }
 
       const isMultiOutcome = e.markets.length > 1;
@@ -176,7 +182,7 @@ async function fetchKalshi(): Promise<PredictionEvent[]> {
         title: e.title,
         url: `https://kalshi.com/markets/${e.event_ticker}`,
         outcomes,
-        volume24h: vol24,
+        volume24h: Math.round(dollarVol), // approximate dollar volume from total contracts × price
       };
     })
     .filter((e) => e.volume24h > 0 && e.outcomes.length > 0 && e.outcomes[0].probability < 100)

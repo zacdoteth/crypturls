@@ -27,8 +27,8 @@ const PM_RGB = "46,92,255";
 const KALSHI_COLOR = "#4DE4B2";
 const KALSHI_RGB = "77,228,178";
 
-function formatVolume(raw: number | string): string {
-  const n = Math.round(Number(raw) || 0);
+function formatVolume(raw: number): string {
+  const n = Math.round(raw);
   return "$" + n.toLocaleString("en-US");
 }
 
@@ -63,11 +63,9 @@ function SegmentRow({
 
 function MarketCard({
   event,
-  color,
   rgb,
 }: {
   event: PredictionEvent;
-  color: string;
   rgb: string;
 }) {
   return (
@@ -79,7 +77,7 @@ function MarketCard({
     >
       <div className="ct-pm-card-top">
         <div className="ct-pm-question">{event.title}</div>
-        <span className="ct-pm-vol" style={{ color }}>{formatVolume(event.volume24h)} 24h</span>
+        <span className="ct-pm-vol">{formatVolume(event.volume24h)}</span>
       </div>
       <SegmentRow outcomes={event.outcomes} rgb={rgb} />
     </a>
@@ -93,6 +91,7 @@ function MarketColumn({
   color,
   rgb,
   siteUrl,
+  volLabel,
 }: {
   events: PredictionEvent[];
   sourceName: string;
@@ -100,6 +99,7 @@ function MarketColumn({
   color: string;
   rgb: string;
   siteUrl: string;
+  volLabel: string;
 }) {
   return (
     <div className="ct-pm-col">
@@ -115,6 +115,7 @@ function MarketColumn({
           <span className="ct-source-name" style={{ color }}>
             {sourceName}
           </span>
+          <span className="ct-pm-header-vol">{volLabel}</span>
         </div>
         <a
           href={siteUrl}
@@ -127,7 +128,7 @@ function MarketColumn({
         </a>
       </div>
       {events.map((evt) => (
-        <MarketCard key={evt.id} event={evt} color={color} rgb={rgb} />
+        <MarketCard key={evt.id} event={evt} rgb={rgb} />
       ))}
     </div>
   );
@@ -141,9 +142,9 @@ function LoadingCol() {
       </div>
       <div style={{ padding: "10px 14px" }}>
         <div className="ct-loading-row" style={{ marginBottom: 10 }} />
-        <div className="ct-loading-row" style={{ height: 26, marginBottom: 14 }} />
+        <div className="ct-loading-row" style={{ height: 20, marginBottom: 14 }} />
         <div className="ct-loading-row" style={{ marginBottom: 10 }} />
-        <div className="ct-loading-row" style={{ height: 26 }} />
+        <div className="ct-loading-row" style={{ height: 20 }} />
       </div>
     </div>
   );
@@ -180,6 +181,7 @@ export default function PredictionMarkets() {
             color={PM_COLOR}
             rgb={PM_RGB}
             siteUrl="https://polymarket.com"
+            volLabel="24H VOL"
           />
           <MarketColumn
             events={data.kalshi}
@@ -188,6 +190,7 @@ export default function PredictionMarkets() {
             color={KALSHI_COLOR}
             rgb={KALSHI_RGB}
             siteUrl="https://kalshi.com"
+            volLabel="TOTAL VOL"
           />
         </>
       )}

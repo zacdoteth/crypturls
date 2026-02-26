@@ -733,6 +733,11 @@ a.ct-c4-item { cursor:pointer; }
 .ct-pm-header-left {
   display:flex; align-items:center; gap:8px;
 }
+.ct-pm-header-vol {
+  font-size:9.5px; font-weight:500; color:#4A5070;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+  white-space:nowrap;
+}
 .ct-pm-card {
   display:block; padding:7px 12px; border-bottom:1px solid rgba(30,35,64,0.5);
   text-decoration:none; color:inherit; transition:background .15s; cursor:pointer;
@@ -752,7 +757,7 @@ a.ct-c4-item { cursor:pointer; }
 }
 .ct-pm-card:hover .ct-pm-question { color:#00D4FF; }
 .ct-pm-vol {
-  font-size:9px; font-weight:600; white-space:nowrap;
+  font-size:9px; font-weight:600; white-space:nowrap; color:#4A5070;
   font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
 }
 
