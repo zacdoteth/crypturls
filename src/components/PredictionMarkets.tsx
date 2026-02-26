@@ -28,24 +28,23 @@ const KALSHI_COLOR = "#4DE4B2";
 const KALSHI_RGB = "77,228,178";
 
 function formatVolume(raw: number | string): string {
-  const n = Number(raw) || 0;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${Math.round(n)}`;
+  const n = Math.round(Number(raw) || 0);
+  return "$" + n.toLocaleString("en-US");
 }
 
-function ProbBar({
-  probability,
-  color,
+/** Opacity steps per segment index — leading outcome is brightest */
+const SEG_ALPHA = [0.55, 0.35, 0.22];
+
+function SegmentRow({
+  outcomes,
   rgb,
   delay,
 }: {
-  probability: number;
-  color: string;
+  outcomes: PredictionOutcome[];
   rgb: string;
   delay: number;
 }) {
-  const [filled, setFilled] = useState(false);
+  const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,7 +53,7 @@ function ProbBar({
     const obs = new IntersectionObserver(
       ([e]) => {
         if (e.isIntersecting) {
-          setFilled(true);
+          setVisible(true);
           obs.disconnect();
         }
       },
@@ -65,24 +64,21 @@ function ProbBar({
   }, []);
 
   return (
-    <div className="ct-pm-bar-track" ref={ref}>
-      <div
-        className="ct-pm-bar-fill"
-        style={{
-          width: filled ? `${probability}%` : "0%",
-          background: `linear-gradient(90deg, rgba(${rgb},0.15), rgba(${rgb},0.6), ${color})`,
-          boxShadow: `0 0 4px rgba(${rgb},0.3), 0 0 8px rgba(${rgb},0.15)`,
-          transitionDelay: `${delay}ms`,
-        }}
-      >
-        <span
-          className="ct-pm-bar-tip"
-          style={{
-            background: "#fff",
-            boxShadow: `0 0 3px ${color}, 0 0 6px ${color}, 0 0 12px rgba(${rgb},0.5), 0 0 24px rgba(${rgb},0.2)`,
-          }}
-        />
-      </div>
+    <div className="ct-pm-segs" ref={ref}>
+      {outcomes.map((o, i) => (
+        <div className="ct-pm-seg" key={i}>
+          <div
+            className="ct-pm-seg-fill"
+            style={{
+              width: visible ? `${o.probability}%` : "0%",
+              background: `rgba(${rgb},${SEG_ALPHA[i] ?? 0.18})`,
+              transitionDelay: `${delay + i * 100}ms`,
+            }}
+          />
+          <span className="ct-pm-seg-label">{o.label}</span>
+          <span className="ct-pm-seg-pct">{o.probability}%</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -107,22 +103,9 @@ function MarketCard({
     >
       <div className="ct-pm-card-top">
         <div className="ct-pm-question">{event.title}</div>
-        <span className="ct-pm-vol">{formatVolume(event.totalVolume)}</span>
+        <span className="ct-pm-vol" style={{ color }}>{formatVolume(event.totalVolume)}</span>
       </div>
-      {event.outcomes.map((o, i) => (
-        <div className="ct-pm-outcome" key={i}>
-          <span className="ct-pm-label">{o.label}</span>
-          <ProbBar
-            probability={o.probability}
-            color={color}
-            rgb={rgb}
-            delay={cardIndex * 150 + i * 80}
-          />
-          <span className="ct-pm-pct" style={{ color }}>
-            {o.probability}%
-          </span>
-        </div>
-      ))}
+      <SegmentRow outcomes={event.outcomes} rgb={rgb} delay={cardIndex * 120} />
     </a>
   );
 }
@@ -181,12 +164,10 @@ function LoadingCol() {
         <div className="ct-loading-row" style={{ width: 120, height: 14 }} />
       </div>
       <div style={{ padding: "10px 14px" }}>
-        <div className="ct-loading-row" style={{ marginBottom: 12 }} />
-        <div className="ct-loading-row" style={{ width: "70%", marginBottom: 6 }} />
-        <div className="ct-loading-row" style={{ width: "50%", marginBottom: 16 }} />
-        <div className="ct-loading-row" style={{ marginBottom: 12 }} />
-        <div className="ct-loading-row" style={{ width: "60%", marginBottom: 6 }} />
-        <div className="ct-loading-row" style={{ width: "40%" }} />
+        <div className="ct-loading-row" style={{ marginBottom: 10 }} />
+        <div className="ct-loading-row" style={{ height: 26, marginBottom: 14 }} />
+        <div className="ct-loading-row" style={{ marginBottom: 10 }} />
+        <div className="ct-loading-row" style={{ height: 26 }} />
       </div>
     </div>
   );
