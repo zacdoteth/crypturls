@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CryptUrls favicon">
+  <!--
+    CryptUrls Favicon — Optimized for 32x32 and 16x16
+    Bolder strokes, no web ring, larger eyes, same organic soul
+  -->
+
+  <!-- 8 Legs — thicker for favicon, organic curves -->
+  <g fill="none" stroke="#00FF88" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M28,27 Q17,20 8,12" stroke-width="3.2"/>
+    <path d="M36,27 Q47,20 56,12" stroke-width="3.2"/>
+    <path d="M26,31 Q14,27 5,24" stroke-width="2.8"/>
+    <path d="M38,31 Q50,27 59,24" stroke-width="2.8"/>
+    <path d="M26,35 Q14,38 5,44" stroke-width="2.6"/>
+    <path d="M38,35 Q50,38 59,44" stroke-width="2.6"/>
+    <path d="M28,38 Q17,46 10,55" stroke-width="2.4"/>
+    <path d="M36,38 Q47,45 54,54" stroke-width="2.4"/>
+  </g>
+
+  <!-- Abdomen -->
+  <ellipse cx="32.3" cy="38" rx="10.2" ry="11.2" fill="#00FF88"/>
+  <!-- Head -->
+  <circle cx="32" cy="25" r="7.8" fill="#00FF88"/>
+  <!-- Neck bridge -->
+  <rect x="26" y="24" width="12" height="15" rx="6" fill="#00FF88"/>
+
+  <!-- Eyes — larger for favicon readability -->
+  <circle cx="29" cy="24" r="2.4" fill="#080C18"/>
+  <circle cx="35.2" cy="24" r="2.3" fill="#080C18"/>
+
+  <!-- Eye highlights -->
+  <circle cx="29.7" cy="23.2" r="0.9" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="35.8" cy="23.3" r="0.75" fill="#FFFFFF" opacity="0.9"/>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CryptUrls spider logo">
+  <!--
+    CryptUrls Spider Logo
+    Design: Organic, minimal, iconic with soul
+    Principles: Stroke variation, subtle asymmetry, bezier curves, personality eyes
+    Color: #00FF88 on transparent
+    Works at 36-64px
+  -->
+
+  <!-- Subtle web ring -->
+  <circle cx="32" cy="32.5" r="30" fill="none" stroke="#00FF88" stroke-width="0.8" opacity="0.12"/>
+
+  <!-- 8 Legs — organic bezier curves, varied weight (front=thickest, rear=thinnest) -->
+  <g fill="none" stroke="#00FF88" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Front pair: 2.6px -->
+    <path d="M28,27 Q18,21 7,11" stroke-width="2.6"/>
+    <path d="M36,27 Q46,21 57,11" stroke-width="2.6"/>
+    <!-- Upper-mid: 2.4px -->
+    <path d="M26.5,30 Q15,27 4,23" stroke-width="2.4"/>
+    <path d="M37.5,30 Q49,27 60,23" stroke-width="2.4"/>
+    <!-- Lower-mid: 2.2px -->
+    <path d="M26.5,34 Q15,36.5 4,43" stroke-width="2.2"/>
+    <path d="M37.5,34 Q49,36.5 60,43" stroke-width="2.2"/>
+    <!-- Rear pair: 2.0px — left knee 1px off for asymmetry -->
+    <path d="M28,37 Q16,45 9,55" stroke-width="2.0"/>
+    <path d="M36,37 Q48,44 55,54" stroke-width="2.0"/>
+  </g>
+
+  <!-- Abdomen (shifted 0.3px right — organic) -->
+  <ellipse cx="32.3" cy="37.5" rx="9.8" ry="10.8" fill="#00FF88"/>
+  <!-- Head -->
+  <circle cx="32" cy="25" r="7.2" fill="#00FF88"/>
+  <!-- Neck bridge -->
+  <rect x="26.5" y="24.5" width="11" height="14" rx="5.5" fill="#00FF88"/>
+
+  <!-- Eyes — slightly asymmetric sizes, forward-looking -->
+  <circle cx="29.2" cy="24" r="1.9" fill="#080C18"/>
+  <circle cx="35.3" cy="24" r="1.8" fill="#080C18"/>
+
+  <!-- Eye highlights — different sizes for life -->
+  <circle cx="29.8" cy="23.3" r="0.65" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="35.8" cy="23.4" r="0.55" fill="#FFFFFF" opacity="0.9"/>
+</svg>
