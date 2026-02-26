@@ -62,9 +62,11 @@ function ArticleRow({ item }: { item: C4Item }) {
 function C4Column({
   label,
   items,
+  date,
 }: {
   label: string;
   items: C4Item[];
+  date?: string;
 }) {
   if (items.length === 0) return null;
 
@@ -83,6 +85,9 @@ function C4Column({
             style={{ width: 14, height: 14, borderRadius: 2, opacity: 0.8 }}
           />
           <span className="ct-source-name" style={{ color: C4_COLOR }}>{label}</span>
+          {date && (
+            <span style={{ color: "#4A5070", fontSize: 10, fontWeight: 500, fontFamily: "var(--font-mono)" }}>{date}</span>
+          )}
         </div>
       </div>
 
@@ -122,7 +127,12 @@ export default function C4dotgg() {
 
   if (!feed) {
     return (
-      <div className="ct-source-grid ct-source-grid-2">
+      <div className="ct-source-grid">
+        <div className="ct-source-section">
+          <div className="ct-loading-row" />
+          <div className="ct-loading-row" />
+          <div className="ct-loading-row" />
+        </div>
         <div className="ct-source-section">
           <div className="ct-loading-row" />
           <div className="ct-loading-row" />
@@ -137,25 +147,30 @@ export default function C4dotgg() {
     );
   }
 
-  // Bucket items into two columns:
+  // Bucket items into three columns:
   // Col 1: New Projects + Launches
-  // Col 2: News + Project Updates + Threads/Reads
+  // Col 2: News
+  // Col 3: Project Updates + Threads/Reads
   const col1Items: C4Item[] = [];
   const col2Items: C4Item[] = [];
+  const col3Items: C4Item[] = [];
 
   for (const s of feed.sections) {
     const cat = s.category.toLowerCase();
     if (cat.includes("new project") || cat.includes("launch")) {
       col1Items.push(...s.items);
-    } else {
+    } else if (cat.includes("news")) {
       col2Items.push(...s.items);
+    } else {
+      col3Items.push(...s.items);
     }
   }
 
   return (
-    <div className="ct-source-grid ct-source-grid-2">
-      <C4Column label="C4 PROJECTS" items={col1Items} />
+    <div className="ct-source-grid">
+      <C4Column label="C4 PROJECTS" items={col1Items} date={feed.date} />
       <C4Column label="C4 NEWS" items={col2Items} />
+      <C4Column label="C4 UPDATES" items={col3Items} />
     </div>
   );
 }

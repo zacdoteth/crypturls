@@ -72,16 +72,22 @@ async function fetchUserImages(username: string): Promise<TweetImage[]> {
     `https://syndication.twitter.com/srv/timeline-profile/screen-name/${username}`,
     {
       timeoutMs: 8000,
+      cache: "no-store",
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Accept: "text/html",
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
       },
     }
   );
 
+  console.log(`[tweets] ${username}: fetched ${html.length} bytes`);
+
   const nextDataParsed = parseNextDataImages(html, username);
   if (nextDataParsed.length > 0) {
+    console.log(`[tweets] ${username}: parsed ${nextDataParsed.length} images via __NEXT_DATA__`);
     return nextDataParsed;
   }
 
@@ -168,11 +174,11 @@ export async function GET(req: Request) {
   try {
     const images = await fetchUserImages(user);
     if (images.length > 0) {
-      // Cache for 30 min — syndication API rate-limits aggressively
-      setCache(cacheKey, images, 30 * 60 * 1000);
+      // Cache for 15 min — balance between freshness and rate-limit avoidance
+      setCache(cacheKey, images, 15 * 60 * 1000);
     } else {
-      // Cache empty results briefly so we recover quickly from parser/API shifts.
-      setCache(cacheKey, images, 30 * 1000);
+      // Cache empty results for 2 min so we recover from transient failures
+      setCache(cacheKey, images, 2 * 60 * 1000);
     }
     return NextResponse.json(images);
   } catch (e) {
@@ -180,8 +186,8 @@ export async function GET(req: Request) {
       `Tweet images failed [${user}]:`,
       e instanceof Error ? e.message : e
     );
-    // Cache the failure briefly to avoid hammering while recovering quickly.
-    setCache(cacheKey, [], 30 * 1000);
+    // Cache the failure for 2 min to avoid hammering while recovering quickly.
+    setCache(cacheKey, [], 2 * 60 * 1000);
     return NextResponse.json([]);
   }
 }
