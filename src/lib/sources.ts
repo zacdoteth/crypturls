@@ -129,7 +129,7 @@ export const COMMUNITY_SOURCES: SourceConfig[] = [
     key: "biz",
     name: "/BIZ/",
     color: "#789922",
-    domain: "boards.4chan.org",
+    domain: "4chan.org/biz/catalog",
     feedUrl: "https://a.4cdn.org/biz/catalog.json",
     type: "chan",
   },

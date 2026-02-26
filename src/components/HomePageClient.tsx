@@ -57,7 +57,7 @@ const SOURCE_META: Record<string, { name: string; color: string; domain: string 
   rmoonshots: { name: "R/CRYPTOMOONSHOTS", color: "#9B59B6", domain: "reddit.com" },
   rethfinance: { name: "R/ETHFINANCE", color: "#627EEA", domain: "reddit.com" },
   rsolana: { name: "R/SOLANA", color: "#14F195", domain: "reddit.com" },
-  biz: { name: "/BIZ/", color: "#789922", domain: "boards.4chan.org" },
+  biz: { name: "/BIZ/", color: "#789922", domain: "4chan.org/biz/catalog" },
 };
 
 interface ActiveVideo {
@@ -150,6 +150,9 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
       {/* PODCASTS */}
       <PodcastGrid onPlayVideo={setActiveVideo} />
 
+      {/* AIXBT SURGING — full-width multi-column */}
+      <AixbtSection />
+
       {/* CRYPTO SHORTS — separated from YouTube */}
       <ShortsCarousel
         onPlayVideo={(video) => setActiveVideo(video)}
@@ -170,9 +173,6 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
           );
         })}
       </div>
-
-      {/* AIXBT SURGING — full-width multi-column */}
-      <AixbtSection />
 
       {/* KOL ALPHA — who are top accounts following */}
       <KolAlpha />

@@ -132,23 +132,48 @@ async function fetchRSS(feedUrl: string, sourceKey: string): Promise<Article[]> 
 }
 
 async function fetchReddit(feedUrl: string, sourceKey: string): Promise<Article[]> {
-  const json = await fetchJsonWithTimeout<{ data?: { children?: { data: { stickied: boolean; title: string; permalink: string; created_utc: number } }[] } }>(
-    feedUrl,
-    {
-      timeoutMs: 10000,
-      headers: { "User-Agent": "CryptUrls/1.0 (by /u/crypturls)" },
-    }
-  );
+  // Try JSON API first, fall back to RSS if blocked (Vercel IPs get 403 from JSON)
+  try {
+    const json = await fetchJsonWithTimeout<{ data?: { children?: { data: { stickied: boolean; title: string; permalink: string; created_utc: number } }[] } }>(
+      feedUrl,
+      {
+        timeoutMs: 10000,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; CryptUrls/1.0; +https://crypturls.com)",
+          "Accept": "application/json",
+        },
+      }
+    );
 
-  return (json?.data?.children || [])
-    .filter((p) => !p.data.stickied)
-    .slice(0, 7)
-    .map((p) => ({
-      title: p.data.title,
-      link: sanitizeUrl(`https://reddit.com${p.data.permalink}`),
-      pubDate: new Date(p.data.created_utc * 1000).toISOString(),
-      source: sourceKey,
-    }));
+    const posts = (json?.data?.children || [])
+      .filter((p) => !p.data.stickied)
+      .slice(0, 7)
+      .map((p) => ({
+        title: p.data.title,
+        link: sanitizeUrl(`https://reddit.com${p.data.permalink}`),
+        pubDate: new Date(p.data.created_utc * 1000).toISOString(),
+        source: sourceKey,
+      }));
+
+    if (posts.length > 0) return posts;
+  } catch {
+    // JSON blocked, fall through to RSS
+  }
+
+  // Fallback: Reddit RSS feeds work better from cloud IPs
+  const subreddit = feedUrl.match(/\/r\/([^/]+)/)?.[1];
+  if (!subreddit) return [];
+
+  const rssUrl = `https://www.reddit.com/r/${subreddit}/hot.rss?limit=8`;
+  const xml = await fetchTextWithTimeout(rssUrl, {
+    timeoutMs: 10000,
+    headers: {
+      "User-Agent": "Mozilla/5.0 (compatible; CryptUrls/1.0; +https://crypturls.com)",
+      "Accept": "application/rss+xml, application/xml, text/xml",
+    },
+  });
+
+  return parseRSSXml(xml, sourceKey, 7);
 }
 
 async function fetch4chan(sourceKey: string): Promise<Article[]> {
