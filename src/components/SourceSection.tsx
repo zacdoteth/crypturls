@@ -19,6 +19,23 @@ interface SourceSectionProps {
 
 const PAGE_SIZE = 5; // 1 featured + 4 list
 
+function timeAgo(pubDate: string): string {
+  if (!pubDate) return "";
+  const d = new Date(pubDate);
+  if (isNaN(d.getTime())) return "";
+  const now = Date.now();
+  const diffMs = now - d.getTime();
+  if (diffMs < 0) return "now";
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d`;
+  return `${Math.floor(days / 7)}w`;
+}
+
 export default function SourceSection({
   name,
   domain,
@@ -122,6 +139,9 @@ export default function SourceSection({
           >
             {pageArticles[0].title}
           </a>
+          {pageArticles[0].pubDate && (
+            <span className="ct-article-time">{timeAgo(pageArticles[0].pubDate)}</span>
+          )}
         </div>
       )}
       {/* Rest as dense list */}
@@ -135,7 +155,7 @@ export default function SourceSection({
           style={{ textDecoration: "none" }}
         >
           <span className="ct-article-title">{a.title}</span>
-          <span className="ct-article-share">↗</span>
+          <span className="ct-article-time">{timeAgo(a.pubDate)}</span>
         </a>
       ))}
       <a

@@ -284,6 +284,14 @@ html, body { background:#080C18 !important; margin:0; padding:0; }
   text-decoration: none;
 }
 .ct-article-share { color:#2A3050; font-size:12px; flex-shrink:0; text-decoration:none; }
+.ct-article-time {
+  font-size:10px; color:#4A5070; flex-shrink:0; white-space:nowrap;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+  font-weight:600; letter-spacing:0.3px;
+}
+.ct-featured-article .ct-article-time {
+  display:block; margin-top:4px; font-size:10.5px;
+}
 
 /* ── SOURCE SECTIONS ── */
 .ct-source-section { padding:0 14px; background:#080C18; min-width:0; }
