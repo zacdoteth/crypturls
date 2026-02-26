@@ -10,7 +10,6 @@ import AixbtSection from "@/components/AixbtSection";
 import YouTubeCarousel from "@/components/YouTubeCarousel";
 import ShortsCarousel from "@/components/ShortsCarousel";
 import StickyPlayer from "@/components/StickyPlayer";
-import RegTicker from "@/components/RegTicker";
 import InverseBrah from "@/components/InverseBrah";
 import BoldLeonidas from "@/components/BoldLeonidas";
 import C4dotgg from "@/components/C4dotgg";
@@ -177,8 +176,6 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
 
       {/* C4DOTGG — daily curated crypto thread */}
       <C4dotgg />
-
-      <RegTicker />
 
       {/* COMMUNITY GRID 1 */}
       <div className="ct-source-grid">

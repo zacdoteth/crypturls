@@ -24,7 +24,7 @@ interface TrendingAccount {
 }
 
 const KOL_COLOR = "#00FF88";
-const FREE_LIMIT = 8; // show 8 rows free, blur the rest
+const FREE_LIMIT = 9; // 3 per column × 3 cols visible free
 
 function formatFollowers(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -32,12 +32,17 @@ function formatFollowers(n: number): string {
   return String(n);
 }
 
-function AccountCell({ acct, locked }: { acct: TrendingAccount; locked: boolean }) {
-  // Generate a deterministic color from the handle for the placeholder avatar
+function KolRow({ acct, locked }: { acct: TrendingAccount; locked: boolean }) {
   const hue = acct.handle.split("").reduce((h, c) => h + c.charCodeAt(0), 0) % 360;
+  const url = `https://x.com/${acct.handle}`;
 
   return (
-    <div className="ct-kol-account">
+    <a
+      href={locked ? undefined : url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`ct-kol-row ${locked ? "ct-kol-locked" : ""}`}
+    >
       <div
         className="ct-kol-avatar"
         style={{
@@ -51,81 +56,18 @@ function AccountCell({ acct, locked }: { acct: TrendingAccount; locked: boolean 
             {acct.name.charAt(0).toUpperCase()}
           </span>
         )}
-        <span className="ct-kol-follower-badge">{formatFollowers(acct.followers)}</span>
       </div>
-      <span className={`ct-kol-acct-name ${locked ? "ct-kol-blur" : ""}`}>
-        {locked ? "••••••••" : acct.name}
-      </span>
-    </div>
-  );
-}
-
-function NotableCell({ notables, locked }: { notables: NotableKol[]; locked: boolean }) {
-  if (locked) {
-    return (
-      <div className="ct-kol-notables">
-        <span className="ct-kol-notable-count ct-kol-blur">?</span>
+      <div className="ct-kol-info">
+        <span className={`ct-kol-name ${locked ? "ct-kol-blur" : ""}`}>
+          {locked ? "••••••••" : acct.name}
+        </span>
+        <span className={`ct-kol-meta ${locked ? "ct-kol-blur" : ""}`}>
+          {locked ? "••" : `${formatFollowers(acct.followers)} · ${acct.accountAge}`}
+        </span>
       </div>
-    );
-  }
-
-  if (notables.length === 0) {
-    return (
-      <div className="ct-kol-notables">
-        <span className="ct-kol-notable-count ct-kol-notable-zero">0</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="ct-kol-notables">
-      <span className="ct-kol-notable-count">{notables.length}</span>
-      <div className="ct-kol-notable-avatars">
-        {notables.slice(0, 5).map((k, i) => {
-          const hue = k.handle.split("").reduce((h, c) => h + c.charCodeAt(0), 0) % 360;
-          return (
-            <div
-              key={i}
-              className="ct-kol-notable-av"
-              title={k.name}
-              style={{
-                background: k.avatar
-                  ? `url(${k.avatar}) center/cover`
-                  : `hsl(${hue}, 45%, 30%)`,
-                zIndex: 10 - i,
-              }}
-            >
-              {!k.avatar && (
-                <span className="ct-kol-notable-letter">
-                  {k.name.charAt(0)}
-                </span>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function TrendingRow({ acct, locked }: { acct: TrendingAccount; locked: boolean }) {
-  const url = `https://x.com/${acct.handle}`;
-
-  return (
-    <a
-      href={locked ? undefined : url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`ct-kol-trow ${locked ? "ct-kol-locked" : ""}`}
-    >
-      <AccountCell acct={acct} locked={locked} />
-      <span className={`ct-kol-age ${locked ? "ct-kol-blur" : ""}`}>
-        {locked ? "••" : acct.accountAge}
-      </span>
-      <span className={`ct-kol-new-count ${locked ? "ct-kol-blur" : ""}`}>
+      <span className={`ct-kol-count ${locked ? "ct-kol-blur" : ""}`}>
         {locked ? "•" : `+${acct.newKolFollows}`}
       </span>
-      <NotableCell notables={acct.notableKols} locked={locked} />
     </a>
   );
 }
@@ -201,16 +143,32 @@ export default function KolAlpha() {
             <span className="ct-kol-badge">LIVE</span>
           </div>
         </div>
-        <div style={{ padding: "12px 14px" }}>
-          <div className="ct-loading-row" />
-          <div className="ct-loading-row" />
-          <div className="ct-loading-row" />
-          <div className="ct-loading-row" />
-          <div className="ct-loading-row" />
+        <div className="ct-kol-grid">
+          <div className="ct-kol-col">
+            <div className="ct-loading-row" />
+            <div className="ct-loading-row" />
+            <div className="ct-loading-row" />
+          </div>
+          <div className="ct-kol-col">
+            <div className="ct-loading-row" />
+            <div className="ct-loading-row" />
+            <div className="ct-loading-row" />
+          </div>
+          <div className="ct-kol-col">
+            <div className="ct-loading-row" />
+            <div className="ct-loading-row" />
+            <div className="ct-loading-row" />
+          </div>
         </div>
       </div>
     );
   }
+
+  // Split into 3 columns
+  const colSize = Math.ceil(accounts.length / 3);
+  const col1 = accounts.slice(0, colSize);
+  const col2 = accounts.slice(colSize, colSize * 2);
+  const col3 = accounts.slice(colSize * 2);
 
   return (
     <div className="ct-kol-section">
@@ -221,25 +179,33 @@ export default function KolAlpha() {
             KOL ALPHA
           </span>
           <span className="ct-kol-badge">LIVE</span>
-          <span className="ct-kol-subtitle">
-            Top trending accounts followed by KOLs
-          </span>
         </div>
-        <TimeframeDropdown value={timeframe} onChange={setTimeframe} />
+        <div className="ct-kol-header-right">
+          <TimeframeDropdown value={timeframe} onChange={setTimeframe} />
+          <a
+            href="#"
+            className="ct-more-link"
+            style={{ color: KOL_COLOR, padding: 0, margin: 0 }}
+          >
+            MORE ···
+          </a>
+        </div>
       </div>
 
-      {/* Table header */}
-      <div className="ct-kol-thead">
-        <span className="ct-kol-th ct-kol-th-account">Account</span>
-        <span className="ct-kol-th ct-kol-th-age">Age</span>
-        <span className="ct-kol-th ct-kol-th-new">New KOLs</span>
-        <span className="ct-kol-th ct-kol-th-notable">Notable KOLs</span>
-      </div>
-
-      {/* Rows */}
-      <div className="ct-kol-tbody">
-        {accounts.map((acct, i) => (
-          <TrendingRow key={acct.handle} acct={acct} locked={i >= FREE_LIMIT} />
+      <div className="ct-kol-grid">
+        {[col1, col2, col3].map((col, ci) => (
+          <div key={ci} className="ct-kol-col">
+            {col.map((acct, i) => {
+              const globalIdx = ci * colSize + i;
+              return (
+                <KolRow
+                  key={acct.handle}
+                  acct={acct}
+                  locked={globalIdx >= FREE_LIMIT}
+                />
+              );
+            })}
+          </div>
         ))}
       </div>
 
@@ -250,15 +216,11 @@ export default function KolAlpha() {
             See all KOL follows in real-time
           </div>
           <div className="ct-kol-paywall-sub">
-            Track which accounts Cobie, Hsaka, Ansem, Arthur Hayes and 500+ top
-            KOLs are following — before everyone else.
+            Track which accounts top KOLs are following — before everyone else.
           </div>
           <button className="ct-kol-paywall-btn">
             Unlock KOL Alpha · $39/mo
           </button>
-          <div className="ct-kol-paywall-alt">
-            or $99/3mo · $299/year
-          </div>
         </div>
       </div>
     </div>
