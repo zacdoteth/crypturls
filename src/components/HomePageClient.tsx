@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Header from "@/components/Header";
 import PriceTicker from "@/components/PriceTicker";
 import FearGreed from "@/components/FearGreed";
-import QuestionChips from "@/components/QuestionChips";
 import SourceSection from "@/components/SourceSection";
 import CTTrending from "@/components/CTTrending";
 import AixbtSection from "@/components/AixbtSection";
@@ -105,7 +104,6 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
       <Header />
       <PriceTicker />
       <FearGreed />
-      <QuestionChips />
 
       {/* SOURCE GRID 1 */}
       <div className="ct-source-grid">

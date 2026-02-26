@@ -49,7 +49,6 @@ export default function SourceSection({
         <div className="ct-loading-row" />
         <div className="ct-loading-row" />
         <div className="ct-loading-row" />
-        <div className="ct-loading-row" />
       </div>
     );
   }
@@ -89,7 +88,7 @@ export default function SourceSection({
         </a>
       </div>
       {/* Rest as dense list */}
-      {articles.slice(1, 7).map((a, i) => (
+      {articles.slice(1, 5).map((a, i) => (
         <a
           key={i}
           href={a.link}

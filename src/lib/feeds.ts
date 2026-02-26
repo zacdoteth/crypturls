@@ -49,7 +49,7 @@ export function buildEmptyFeedData(): FeedData {
   return empty;
 }
 
-function parseRSSXml(xml: string, sourceKey: string, limit = 7): Article[] {
+function parseRSSXml(xml: string, sourceKey: string, limit = 5): Article[] {
   const articles: Article[] = [];
 
   const itemRegex = /<item[\s>]([\s\S]*?)<\/item>/gi;
@@ -123,7 +123,7 @@ function decodeEntities(str: string): string {
 const OVERFETCH_SOURCES = new Set(["decrypt"]);
 
 async function fetchRSS(feedUrl: string, sourceKey: string): Promise<Article[]> {
-  const limit = OVERFETCH_SOURCES.has(sourceKey) ? 15 : 7;
+  const limit = OVERFETCH_SOURCES.has(sourceKey) ? 12 : 5;
   const xml = await fetchTextWithTimeout(feedUrl, {
     timeoutMs: 10000,
     headers: { "User-Agent": "CryptUrls/1.0 (https://crypturls.com)" },
@@ -147,7 +147,7 @@ async function fetchReddit(feedUrl: string, sourceKey: string): Promise<Article[
 
     const posts = (json?.data?.children || [])
       .filter((p) => !p.data.stickied)
-      .slice(0, 7)
+      .slice(0, 5)
       .map((p) => ({
         title: p.data.title,
         link: sanitizeUrl(`https://reddit.com${p.data.permalink}`),
@@ -164,7 +164,7 @@ async function fetchReddit(feedUrl: string, sourceKey: string): Promise<Article[
   const subreddit = feedUrl.match(/\/r\/([^/]+)/)?.[1];
   if (!subreddit) return [];
 
-  const rssUrl = `https://www.reddit.com/r/${subreddit}/hot.rss?limit=8`;
+  const rssUrl = `https://www.reddit.com/r/${subreddit}/hot.rss?limit=6`;
   const xml = await fetchTextWithTimeout(rssUrl, {
     timeoutMs: 10000,
     headers: {
@@ -173,7 +173,7 @@ async function fetchReddit(feedUrl: string, sourceKey: string): Promise<Article[
     },
   });
 
-  return parseRSSXml(xml, sourceKey, 7);
+  return parseRSSXml(xml, sourceKey, 5);
 }
 
 async function fetch4chan(sourceKey: string): Promise<Article[]> {
@@ -198,7 +198,7 @@ async function fetch4chan(sourceKey: string): Promise<Article[]> {
       }
     }
   }
-  return threads.slice(0, 7);
+  return threads.slice(0, 5);
 }
 
 // --- Decrypt AI filter ---
@@ -230,7 +230,7 @@ async function fetchSource(source: SourceConfig): Promise<Article[]> {
 
     // Filter pure-AI noise from Decrypt (keep crypto-AI crossover)
     if (source.key === "decrypt") {
-      articles = articles.filter((a) => !isNonCryptoAI(a.title)).slice(0, 7);
+      articles = articles.filter((a) => !isNonCryptoAI(a.title)).slice(0, 5);
     }
 
     return articles;
