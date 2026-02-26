@@ -47,21 +47,9 @@ const CRYPTO_KEYWORDS = /bitcoin|btc|crypto|ethereum|eth|solana|sol|altcoin|defi
 // Filter out scheduled/upcoming livestreams by title patterns
 const UPCOMING_PATTERNS = /\b(LIVE\s+in\b|Starting\s+Soon|Premieres?\s+(in|at)\b|Scheduled|Going\s+Live\s+at\b|Upcoming\s+Live)/i;
 
-// Check if a video is a YouTube Short via HEAD request
-async function isYouTubeShort(videoId: string): Promise<boolean> {
-  try {
-    const r = await Promise.race([
-      fetch(`https://www.youtube.com/shorts/${videoId}`, {
-        method: "HEAD",
-        redirect: "manual", // don't follow redirects
-      }),
-      new Promise<Response>((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000)),
-    ]);
-    // 200 = it's a Short, 301/302/303 = regular video (redirects to /watch)
-    return r.status === 200;
-  } catch {
-    return false;
-  }
+/** Title-based heuristic — avoids 80+ HEAD requests to youtube.com */
+function isLikelyShort(title: string): boolean {
+  return /#shorts?\b/i.test(title);
 }
 
 export function parseAllVideos(xml: string, ch: ChannelConfig): Omit<Video, "isShort">[] {
@@ -133,28 +121,16 @@ export async function GET() {
     if (r.status === "fulfilled") allRaw.push(...r.value);
   }
 
-  // Check which videos are Shorts (batch, max 30 concurrent)
-  const withShortFlag: Video[] = [];
-  const batches: Omit<Video, "isShort">[][] = [];
-  for (let i = 0; i < allRaw.length; i += 20) {
-    batches.push(allRaw.slice(i, i + 20));
-  }
-  for (const batch of batches) {
-    const results = await Promise.allSettled(
-      batch.map(async (v) => {
-        const short = await isYouTubeShort(v.videoId);
-        return { ...v, isShort: short };
-      })
-    );
-    for (const r of results) {
-      if (r.status === "fulfilled") withShortFlag.push(r.value);
-    }
-  }
+  // Tag shorts via title heuristic (instant, no network)
+  const tagged: Video[] = allRaw.map((v) => ({
+    ...v,
+    isShort: isLikelyShort(v.title),
+  }));
 
   // Separate: regular videos only, 1 per channel, sorted by date
   const seen = new Set<string>();
   const regular: Video[] = [];
-  const sorted = [...withShortFlag].sort((a, b) => b.publishedTs - a.publishedTs);
+  const sorted = [...tagged].sort((a, b) => b.publishedTs - a.publishedTs);
   for (const v of sorted) {
     if (!v.isShort && !seen.has(v.channel)) {
       seen.add(v.channel);

@@ -14,7 +14,7 @@ interface PredictionEvent {
   title: string;
   url: string;
   outcomes: PredictionOutcome[];
-  totalVolume: number;
+  volume24h: number;
 }
 
 interface PredictionsData {
@@ -103,7 +103,7 @@ function MarketCard({
     >
       <div className="ct-pm-card-top">
         <div className="ct-pm-question">{event.title}</div>
-        <span className="ct-pm-vol" style={{ color }}>{formatVolume(event.totalVolume)}</span>
+        <span className="ct-pm-vol" style={{ color }}>{formatVolume(event.volume24h)} 24h</span>
       </div>
       <SegmentRow outcomes={event.outcomes} rgb={rgb} delay={cardIndex * 120} />
     </a>

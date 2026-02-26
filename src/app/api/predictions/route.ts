@@ -13,7 +13,7 @@ export interface PredictionEvent {
   title: string;
   url: string;
   outcomes: PredictionOutcome[];
-  totalVolume: number;
+  volume24h: number;
 }
 
 interface PredictionsResponse {
@@ -64,18 +64,15 @@ async function fetchPolymarket(): Promise<PredictionEvent[]> {
   return events
     .filter((e) => e.markets?.length > 0)
     .map((e) => {
-      let totalVol24 = 0;
-      let totalVol = 0;
+      let vol24 = 0;
       for (const m of e.markets) {
-        totalVol24 += Number(m.volume24hr) || 0;
-        totalVol += Number(m.volume) || 0;
+        vol24 += Number(m.volume24hr) || 0;
       }
 
       const isMultiOutcome = e.markets.length > 2;
       const outcomes: PredictionOutcome[] = [];
 
       if (isMultiOutcome) {
-        // Collect all outcomes with probabilities, sort by probability desc
         const parsed = e.markets
           .map((m) => ({
             label: m.groupItemTitle || "",
@@ -85,7 +82,6 @@ async function fetchPolymarket(): Promise<PredictionEvent[]> {
           .sort((a, b) => b.probability - a.probability);
         outcomes.push(...parsed.slice(0, 3));
       } else {
-        // Binary: just show the Yes probability
         const market = e.markets[0];
         try {
           const prices = JSON.parse(market.outcomePrices || "[]").map(Number);
@@ -102,14 +98,12 @@ async function fetchPolymarket(): Promise<PredictionEvent[]> {
         title: e.title,
         url: `https://polymarket.com/event/${e.slug}`,
         outcomes,
-        totalVolume: totalVol,
-        _vol24: totalVol24,
+        volume24h: vol24,
       };
     })
-    .filter((e) => e._vol24 > 0 && e.outcomes.length > 0 && e.outcomes[0].probability < 100)
-    .sort((a, b) => b._vol24 - a._vol24)
-    .slice(0, 4)
-    .map(({ _vol24, ...rest }) => rest);
+    .filter((e) => e.volume24h > 0 && e.outcomes.length > 0 && e.outcomes[0].probability < 100)
+    .sort((a, b) => b.volume24h - a.volume24h)
+    .slice(0, 4);
 }
 
 // ── Kalshi ──
@@ -118,6 +112,7 @@ interface KalshiMarket {
   ticker: string;
   yes_ask: number;
   volume: number;
+  volume_24h: number;
   yes_sub_title: string;
   subtitle: string;
   status: string;
@@ -137,7 +132,7 @@ interface KalshiResponse {
 
 async function fetchKalshi(): Promise<PredictionEvent[]> {
   const r = await fetch(
-    "https://api.elections.kalshi.com/trade-api/v2/events?limit=30&status=open&with_nested_markets=true",
+    "https://api.elections.kalshi.com/trade-api/v2/events?limit=50&status=open&with_nested_markets=true",
     {
       headers: { "User-Agent": "CryptUrls/1.0" },
       signal: AbortSignal.timeout(10000),
@@ -151,9 +146,9 @@ async function fetchKalshi(): Promise<PredictionEvent[]> {
   return events
     .filter((e) => e.markets?.length > 0)
     .map((e) => {
-      let totalVol = 0;
+      let vol24 = 0;
       for (const m of e.markets) {
-        totalVol += Number(m.volume) || 0;
+        vol24 += Number(m.volume_24h) || 0;
       }
 
       const isMultiOutcome = e.markets.length > 1;
@@ -181,11 +176,11 @@ async function fetchKalshi(): Promise<PredictionEvent[]> {
         title: e.title,
         url: `https://kalshi.com/markets/${e.event_ticker}`,
         outcomes,
-        totalVolume: totalVol,
+        volume24h: vol24,
       };
     })
-    .filter((e) => e.totalVolume > 0 && e.outcomes.length > 0 && e.outcomes[0].probability < 100)
-    .sort((a, b) => b.totalVolume - a.totalVolume)
+    .filter((e) => e.volume24h > 0 && e.outcomes.length > 0 && e.outcomes[0].probability < 100)
+    .sort((a, b) => b.volume24h - a.volume24h)
     .slice(0, 4);
 }
 
