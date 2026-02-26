@@ -186,8 +186,8 @@ async function fetch4chan(sourceKey: string): Promise<Article[]> {
   );
 
   const threads: Article[] = [];
-  for (const page of pages.slice(0, 2)) {
-    for (const thread of (page.threads || []).slice(0, 5)) {
+  for (const page of pages.slice(0, 3)) {
+    for (const thread of (page.threads || []).slice(0, 8)) {
       if (thread.sub || thread.com) {
         threads.push({
           title: decodeEntities((thread.sub || thread.com || "").slice(0, 120)) || "Anonymous",
@@ -198,7 +198,7 @@ async function fetch4chan(sourceKey: string): Promise<Article[]> {
       }
     }
   }
-  return threads.slice(0, 5);
+  return threads.slice(0, 15);
 }
 
 // --- Decrypt AI filter ---

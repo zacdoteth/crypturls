@@ -65,9 +65,16 @@ function KolRow({ acct, locked }: { acct: TrendingAccount; locked: boolean }) {
           {locked ? "••" : `${formatFollowers(acct.followers)} · ${acct.accountAge}`}
         </span>
       </div>
-      <span className={`ct-kol-count ${locked ? "ct-kol-blur" : ""}`}>
-        {locked ? "•" : `+${acct.newKolFollows}`}
-      </span>
+      <div className="ct-kol-right">
+        <span className={`ct-kol-count ${locked ? "ct-kol-blur" : ""}`}>
+          {locked ? "•" : `+${acct.newKolFollows}`}
+        </span>
+        {!locked && acct.notableKols.length > 0 && (
+          <span className="ct-kol-notables">
+            {acct.notableKols.slice(0, 3).map((k) => k.name).join(", ")}
+          </span>
+        )}
+      </div>
     </a>
   );
 }

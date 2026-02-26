@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface Article {
   title: string;
   link: string;
@@ -12,14 +14,24 @@ interface SourceSectionProps {
   domain: string;
   color: string;
   articles: Article[];
+  paginate?: boolean;
 }
+
+const PAGE_SIZE = 5; // 1 featured + 4 list
 
 export default function SourceSection({
   name,
   domain,
   color,
   articles,
+  paginate,
 }: SourceSectionProps) {
+  const [page, setPage] = useState(0);
+  const totalPages = paginate ? Math.max(1, Math.ceil(articles.length / PAGE_SIZE)) : 1;
+  const pageArticles = paginate
+    ? articles.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
+    : articles.slice(0, 5);
+
   if (articles.length === 0) {
     return (
       <div className="ct-source-section">
@@ -75,20 +87,45 @@ export default function SourceSection({
         >
           {name}
         </a>
+        {paginate && totalPages > 1 && (
+          <div className="ct-source-pager">
+            <button
+              className="ct-source-pager-btn"
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              aria-label="Previous page"
+            >
+              ‹
+            </button>
+            <span className="ct-source-pager-count">
+              {page + 1}/{totalPages}
+            </span>
+            <button
+              className="ct-source-pager-btn"
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={page === totalPages - 1}
+              aria-label="Next page"
+            >
+              ›
+            </button>
+          </div>
+        )}
       </div>
       {/* Featured first article */}
-      <div className="ct-featured-article">
-        <a
-          href={articles[0].link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ct-featured-title"
-        >
-          {articles[0].title}
-        </a>
-      </div>
+      {pageArticles.length > 0 && (
+        <div className="ct-featured-article">
+          <a
+            href={pageArticles[0].link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ct-featured-title"
+          >
+            {pageArticles[0].title}
+          </a>
+        </div>
+      )}
       {/* Rest as dense list */}
-      {articles.slice(1, 5).map((a, i) => (
+      {pageArticles.slice(1, 5).map((a, i) => (
         <a
           key={i}
           href={a.link}

@@ -14,6 +14,7 @@ import InverseBrah from "@/components/InverseBrah";
 import BoldLeonidas from "@/components/BoldLeonidas";
 import C4dotgg from "@/components/C4dotgg";
 import KolAlpha from "@/components/KolAlpha";
+import PredictionMarkets from "@/components/PredictionMarkets";
 import PodcastGrid from "@/components/PodcastGrid";
 import Footer from "@/components/Footer";
 import { GRID_LAYOUT } from "@/lib/sources";
@@ -128,6 +129,9 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
 
       <CTTrending />
 
+      {/* PREDICTION MARKETS — Polymarket live odds */}
+      <PredictionMarkets />
+
       {/* SOURCE GRID 2 */}
       <div className="ct-source-grid">
         {GRID_LAYOUT.grid2.map((key) => {
@@ -188,6 +192,7 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
               domain={s.domain}
               color={s.color}
               articles={s.articles}
+              paginate={key === "biz"}
             />
           );
         })}

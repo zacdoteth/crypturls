@@ -309,6 +309,23 @@ html, body { background:#080C18 !important; margin:0; padding:0; }
   cursor:pointer; font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
   text-decoration:none; display:block;
 }
+/* Source section pagination (e.g. /biz/) */
+.ct-source-pager {
+  display:inline-flex; align-items:center; gap:3px; margin-left:auto;
+}
+.ct-source-pager-btn {
+  background:none; border:1px solid #1E2340; color:#8890A8;
+  width:18px; height:18px; border-radius:4px; font-size:12px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace; font-weight:700;
+  transition:all .15s; line-height:1; padding:0;
+}
+.ct-source-pager-btn:hover:not(:disabled) { background:#1E2340; color:#00D4FF; border-color:#00D4FF40; }
+.ct-source-pager-btn:disabled { opacity:0.3; cursor:default; }
+.ct-source-pager-count {
+  font-size:9.5px; color:#566080; font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+  font-weight:600; min-width:20px; text-align:center;
+}
 .ct-source-grid-2 { grid-template-columns:1fr 1fr; }
 /* The spider HANGS upside-down — this is the resting state */
 .ct-spider-logo {
@@ -629,9 +646,17 @@ a.ct-c4-item { cursor:pointer; }
   font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
 }
 
+.ct-kol-right {
+  display:flex; flex-direction:column; align-items:flex-end; gap:1px; flex-shrink:0;
+}
 .ct-kol-count {
-  font-size:12px; font-weight:700; color:#00FF88; flex-shrink:0;
+  font-size:12px; font-weight:700; color:#00FF88;
   font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+}
+.ct-kol-notables {
+  font-size:9.5px; color:#566080; font-weight:500;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px;
 }
 
 /* Locked/blurred rows */
@@ -677,6 +702,59 @@ a.ct-c4-item { cursor:pointer; }
   .ct-kol-grid { grid-template-columns:1fr; }
   .ct-kol-col { border-right:none; }
   .ct-kol-subtitle { display:none; }
+}
+
+/* ── PREDICTION MARKETS ── */
+.ct-pm-section {
+  border-bottom:1px solid #161B2E; background:#080C18; overflow:hidden;
+}
+.ct-pm-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 14px 8px; border-bottom:1px solid rgba(30,35,64,0.5);
+}
+.ct-pm-header-left {
+  display:flex; align-items:center; gap:8px;
+}
+.ct-pm-badge {
+  font-size:9px; font-weight:700; letter-spacing:1px; color:#6F5CE6;
+  background:rgba(111,92,230,0.1); padding:2px 6px; border-radius:3px;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+}
+.ct-pm-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:1px;
+  background:#161B2E;
+}
+.ct-pm-col {
+  background:#080C18; min-width:0;
+}
+.ct-pm-row {
+  display:block; padding:10px 14px; border-bottom:1px solid rgba(30,35,64,0.5);
+  text-decoration:none; color:inherit; transition:background .15s; cursor:pointer;
+}
+.ct-pm-row:last-child { border-bottom:none; }
+.ct-pm-row:hover { background:rgba(20,24,40,0.4); }
+.ct-pm-question {
+  font-size:13px; font-weight:600; color:#B8C0D8; line-height:1.4;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden; margin-bottom:6px;
+}
+.ct-pm-row:hover .ct-pm-question { color:#00D4FF; }
+.ct-pm-bottom {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.ct-pm-prob {
+  font-size:12px; font-weight:700;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+}
+.ct-pm-vol {
+  font-size:10px; color:#4A5070; font-weight:500;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+}
+@media (max-width: 900px) {
+  .ct-pm-grid { grid-template-columns:1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .ct-pm-grid { grid-template-columns:1fr; }
 }
 
 /* ── REG TICKER ── */
