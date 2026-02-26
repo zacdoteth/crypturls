@@ -3,16 +3,17 @@ import { getOrSetCache } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
+interface PredictionOutcome {
+  label: string;
+  probability: number;
+}
+
 export interface PredictionEvent {
   id: string;
   title: string;
-  slug: string;
   url: string;
-  topOutcome: string;
-  probability: number;
-  volume24hr: number;
+  outcomes: PredictionOutcome[];
   totalVolume: number;
-  endDate: string;
 }
 
 interface PredictionsResponse {
@@ -20,7 +21,7 @@ interface PredictionsResponse {
   kalshi: PredictionEvent[];
 }
 
-// ── Polymarket types ──
+// ── Polymarket ──
 
 interface GammaMarket {
   outcomePrices: string;
@@ -71,55 +72,47 @@ async function fetchPolymarket(): Promise<PredictionEvent[]> {
       }
 
       const isMultiOutcome = e.markets.length > 2;
-      let topOutcome = "Yes";
-      let probability = 50;
+      const outcomes: PredictionOutcome[] = [];
 
       if (isMultiOutcome) {
-        let bestPrice = 0;
-        let bestLabel = "";
-        for (const m of e.markets) {
-          const yesPrice = parseYesPrice(m);
-          if (yesPrice > bestPrice) {
-            bestPrice = yesPrice;
-            bestLabel = m.groupItemTitle || "";
-          }
-        }
-        if (bestLabel && bestPrice > 0) {
-          topOutcome = bestLabel;
-          probability = Math.round(bestPrice * 100);
-        }
+        // Collect all outcomes with probabilities, sort by probability desc
+        const parsed = e.markets
+          .map((m) => ({
+            label: m.groupItemTitle || "",
+            probability: Math.round(parseYesPrice(m) * 100),
+          }))
+          .filter((o) => o.label && o.probability > 0)
+          .sort((a, b) => b.probability - a.probability);
+        outcomes.push(...parsed.slice(0, 3));
       } else {
+        // Binary: just show the Yes probability
         const market = e.markets[0];
         try {
           const prices = JSON.parse(market.outcomePrices || "[]").map(Number);
-          const outcomes: string[] = JSON.parse(market.outcomes || "[]");
-          if (prices.length > 0 && outcomes.length > 0) {
-            topOutcome = "Yes";
-            probability = Math.round(prices[0] * 100);
+          if (prices.length > 0 && prices[0] > 0) {
+            outcomes.push({ label: "Yes", probability: Math.round(prices[0] * 100) });
           }
         } catch {
-          // keep defaults
+          // skip
         }
       }
 
       return {
         id: e.id,
         title: e.title,
-        slug: e.slug,
         url: `https://polymarket.com/event/${e.slug}`,
-        topOutcome,
-        probability,
-        volume24hr: totalVol24,
+        outcomes,
         totalVolume: totalVol,
-        endDate: e.endDate || "",
+        _vol24: totalVol24,
       };
     })
-    .filter((e) => e.volume24hr > 0 && e.probability > 0 && e.probability < 100)
-    .sort((a, b) => b.volume24hr - a.volume24hr)
-    .slice(0, 5);
+    .filter((e) => e._vol24 > 0 && e.outcomes.length > 0 && e.outcomes[0].probability < 100)
+    .sort((a, b) => b._vol24 - a._vol24)
+    .slice(0, 4)
+    .map(({ _vol24, ...rest }) => rest);
 }
 
-// ── Kalshi types ──
+// ── Kalshi ──
 
 interface KalshiMarket {
   ticker: string;
@@ -158,56 +151,42 @@ async function fetchKalshi(): Promise<PredictionEvent[]> {
   return events
     .filter((e) => e.markets?.length > 0)
     .map((e) => {
-      // Sum total volume across all markets in the event
       let totalVol = 0;
       for (const m of e.markets) {
         totalVol += Number(m.volume) || 0;
       }
 
       const isMultiOutcome = e.markets.length > 1;
-      let topOutcome = "Yes";
-      let probability = 50;
+      const outcomes: PredictionOutcome[] = [];
 
       if (isMultiOutcome) {
-        // Find the market with the highest yes_ask (probability)
-        let bestPrice = 0;
-        let bestLabel = "";
-        for (const m of e.markets) {
-          const price = Number(m.yes_ask) || 0;
-          if (price > bestPrice) {
-            bestPrice = price;
-            bestLabel = m.yes_sub_title || m.subtitle || "";
-          }
-        }
-        if (bestLabel && bestPrice > 0) {
-          topOutcome = bestLabel;
-          probability = bestPrice; // Kalshi prices are already in cents (0-100)
-        }
+        const parsed = e.markets
+          .map((m) => ({
+            label: m.yes_sub_title || m.subtitle || "",
+            probability: Math.round(Number(m.yes_ask) || 0),
+          }))
+          .filter((o) => o.label && o.probability > 0)
+          .sort((a, b) => b.probability - a.probability);
+        outcomes.push(...parsed.slice(0, 3));
       } else {
-        // Binary market
         const market = e.markets[0];
-        const price = Number(market.yes_ask) || 0;
+        const price = Math.round(Number(market.yes_ask) || 0);
         if (price > 0) {
-          topOutcome = "Yes";
-          probability = price; // Already 0-100
+          outcomes.push({ label: "Yes", probability: price });
         }
       }
 
       return {
         id: e.event_ticker,
         title: e.title,
-        slug: e.event_ticker,
         url: `https://kalshi.com/markets/${e.event_ticker}`,
-        topOutcome,
-        probability: Math.round(probability),
-        volume24hr: 0, // Kalshi doesn't expose 24h volume per event
+        outcomes,
         totalVolume: totalVol,
-        endDate: "",
       };
     })
-    .filter((e) => e.totalVolume > 0 && e.probability > 0 && e.probability < 100)
+    .filter((e) => e.totalVolume > 0 && e.outcomes.length > 0 && e.outcomes[0].probability < 100)
     .sort((a, b) => b.totalVolume - a.totalVolume)
-    .slice(0, 5);
+    .slice(0, 4);
 }
 
 export async function GET() {

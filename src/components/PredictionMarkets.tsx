@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { fetchJsonClient } from "@/lib/client-http";
 import { useVisibilityPolling } from "@/lib/use-visibility-polling";
+
+interface PredictionOutcome {
+  label: string;
+  probability: number;
+}
 
 interface PredictionEvent {
   id: string;
   title: string;
-  slug: string;
   url: string;
-  topOutcome: string;
-  probability: number;
-  volume24hr: number;
+  outcomes: PredictionOutcome[];
   totalVolume: number;
-  endDate: string;
 }
 
 interface PredictionsData {
@@ -22,7 +23,9 @@ interface PredictionsData {
 }
 
 const PM_COLOR = "#6F5CE6";
-const KALSHI_COLOR = "#00D1FF";
+const PM_RGB = "111,92,230";
+const KALSHI_COLOR = "#4DE4B2";
+const KALSHI_RGB = "77,228,178";
 
 function formatVolume(raw: number | string): string {
   const n = Number(raw) || 0;
@@ -31,16 +34,96 @@ function formatVolume(raw: number | string): string {
   return `$${Math.round(n)}`;
 }
 
-function LoadingCol() {
+function ProbBar({
+  probability,
+  color,
+  rgb,
+  delay,
+}: {
+  probability: number;
+  color: string;
+  rgb: string;
+  delay: number;
+}) {
+  const [filled, setFilled] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setFilled(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   return (
-    <div className="ct-pm-col">
-      <div className="ct-pm-col-header">
-        <div className="ct-loading-row" style={{ width: 120, height: 14 }} />
+    <div className="ct-pm-bar-track" ref={ref}>
+      <div
+        className="ct-pm-bar-fill"
+        style={{
+          width: filled ? `${probability}%` : "0%",
+          background: `linear-gradient(90deg, rgba(${rgb},0.15), rgba(${rgb},0.6), ${color})`,
+          boxShadow: `0 0 4px rgba(${rgb},0.3), 0 0 8px rgba(${rgb},0.15)`,
+          transitionDelay: `${delay}ms`,
+        }}
+      >
+        <span
+          className="ct-pm-bar-tip"
+          style={{
+            background: "#fff",
+            boxShadow: `0 0 3px ${color}, 0 0 6px ${color}, 0 0 12px rgba(${rgb},0.5), 0 0 24px rgba(${rgb},0.2)`,
+          }}
+        />
       </div>
-      <div className="ct-loading-row" />
-      <div className="ct-loading-row" />
-      <div className="ct-loading-row" />
     </div>
+  );
+}
+
+function MarketCard({
+  event,
+  color,
+  rgb,
+  cardIndex,
+}: {
+  event: PredictionEvent;
+  color: string;
+  rgb: string;
+  cardIndex: number;
+}) {
+  return (
+    <a
+      href={event.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="ct-pm-card"
+    >
+      <div className="ct-pm-card-top">
+        <div className="ct-pm-question">{event.title}</div>
+        <span className="ct-pm-vol">{formatVolume(event.totalVolume)}</span>
+      </div>
+      {event.outcomes.map((o, i) => (
+        <div className="ct-pm-outcome" key={i}>
+          <span className="ct-pm-label">{o.label}</span>
+          <ProbBar
+            probability={o.probability}
+            color={color}
+            rgb={rgb}
+            delay={cardIndex * 150 + i * 80}
+          />
+          <span className="ct-pm-pct" style={{ color }}>
+            {o.probability}%
+          </span>
+        </div>
+      ))}
+    </a>
   );
 }
 
@@ -49,12 +132,14 @@ function MarketColumn({
   sourceName,
   faviconDomain,
   color,
+  rgb,
   siteUrl,
 }: {
   events: PredictionEvent[];
   sourceName: string;
   faviconDomain: string;
   color: string;
+  rgb: string;
   siteUrl: string;
 }) {
   return (
@@ -82,30 +167,27 @@ function MarketColumn({
           MORE ···
         </a>
       </div>
-      {events.map((evt) => (
-        <a
-          key={evt.id}
-          href={evt.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ct-pm-row"
-        >
-          <div className="ct-pm-question">{evt.title}</div>
-          <div className="ct-pm-bottom">
-            <span
-              className="ct-pm-prob"
-              style={{
-                color: evt.probability >= 50 ? "#00FF88" : "#FF4757",
-              }}
-            >
-              {evt.topOutcome} {evt.probability}%
-            </span>
-            <span className="ct-pm-vol">
-              {formatVolume(evt.totalVolume)} vol
-            </span>
-          </div>
-        </a>
+      {events.map((evt, i) => (
+        <MarketCard key={evt.id} event={evt} color={color} rgb={rgb} cardIndex={i} />
       ))}
+    </div>
+  );
+}
+
+function LoadingCol() {
+  return (
+    <div className="ct-pm-col">
+      <div className="ct-pm-col-header">
+        <div className="ct-loading-row" style={{ width: 120, height: 14 }} />
+      </div>
+      <div style={{ padding: "10px 14px" }}>
+        <div className="ct-loading-row" style={{ marginBottom: 12 }} />
+        <div className="ct-loading-row" style={{ width: "70%", marginBottom: 6 }} />
+        <div className="ct-loading-row" style={{ width: "50%", marginBottom: 16 }} />
+        <div className="ct-loading-row" style={{ marginBottom: 12 }} />
+        <div className="ct-loading-row" style={{ width: "60%", marginBottom: 6 }} />
+        <div className="ct-loading-row" style={{ width: "40%" }} />
+      </div>
     </div>
   );
 }
@@ -126,41 +208,32 @@ export default function PredictionMarkets() {
   const hasData = data && (data.polymarket.length > 0 || data.kalshi.length > 0);
 
   return (
-    <div className="ct-pm-section">
-      <div className="ct-pm-header">
-        <div className="ct-pm-header-left">
-          <span className="ct-source-name" style={{ color: PM_COLOR }}>
-            PREDICTION MARKETS
-          </span>
-          <span className="ct-pm-badge">LIVE ODDS</span>
-        </div>
-      </div>
-
-      <div className="ct-pm-grid">
-        {!hasData ? (
-          <>
-            <LoadingCol />
-            <LoadingCol />
-          </>
-        ) : (
-          <>
-            <MarketColumn
-              events={data.polymarket}
-              sourceName="POLYMARKET"
-              faviconDomain="polymarket.com"
-              color={PM_COLOR}
-              siteUrl="https://polymarket.com"
-            />
-            <MarketColumn
-              events={data.kalshi}
-              sourceName="KALSHI"
-              faviconDomain="kalshi.com"
-              color={KALSHI_COLOR}
-              siteUrl="https://kalshi.com"
-            />
-          </>
-        )}
-      </div>
+    <div className="ct-pm-grid">
+      {!hasData ? (
+        <>
+          <LoadingCol />
+          <LoadingCol />
+        </>
+      ) : (
+        <>
+          <MarketColumn
+            events={data.polymarket}
+            sourceName="POLYMARKET"
+            faviconDomain="polymarket.com"
+            color={PM_COLOR}
+            rgb={PM_RGB}
+            siteUrl="https://polymarket.com"
+          />
+          <MarketColumn
+            events={data.kalshi}
+            sourceName="KALSHI"
+            faviconDomain="kalshi.com"
+            color={KALSHI_COLOR}
+            rgb={KALSHI_RGB}
+            siteUrl="https://kalshi.com"
+          />
+        </>
+      )}
     </div>
   );
 }
