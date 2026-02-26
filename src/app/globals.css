@@ -764,22 +764,12 @@ a.ct-c4-item { cursor:pointer; }
   flex:1; min-width:0; position:relative; overflow:hidden;
   height:26px; border-radius:4px; display:flex; align-items:center;
   padding:0 8px; gap:4px;
-  background:rgba(255,255,255,0.025);
+  background:rgba(255,255,255,0.02);
 }
 .ct-pm-seg-fill {
   position:absolute; left:0; top:0; bottom:0; border-radius:4px;
   transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
   will-change:width;
-}
-/* CRT scanline overlay */
-.ct-pm-seg-fill::before {
-  content:''; position:absolute; inset:0; border-radius:4px;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent, transparent 2px,
-    rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px
-  );
-  pointer-events:none;
 }
 .ct-pm-seg-label {
   position:relative; z-index:1; flex:1; min-width:0;

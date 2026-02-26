@@ -32,8 +32,8 @@ function formatVolume(raw: number | string): string {
   return "$" + n.toLocaleString("en-US");
 }
 
-/** Opacity steps per segment index — leading outcome is brightest */
-const SEG_ALPHA = [0.55, 0.35, 0.22];
+/** Opacity steps per segment index — subtle, not eye-grabbing */
+const SEG_ALPHA = [0.18, 0.12, 0.08];
 
 function SegmentRow({
   outcomes,
@@ -57,7 +57,7 @@ function SegmentRow({
           obs.disconnect();
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.6, rootMargin: "-40px 0px" }
     );
     obs.observe(el);
     return () => obs.disconnect();
