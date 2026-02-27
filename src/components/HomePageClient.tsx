@@ -55,6 +55,12 @@ const SOURCE_META: Record<string, { name: string; color: string; domain: string 
   thedefiant: { name: "THE DEFIANT", color: "#A855F7", domain: "thedefiant.io" },
   unchained: { name: "UNCHAINED", color: "#1DB954", domain: "unchainedcrypto.com" },
   rektnews: { name: "REKT NEWS", color: "#FF0420", domain: "rekt.news" },
+  treenews: { name: "TREE NEWS", color: "#00FF88", domain: "t.me" },
+  wublock: { name: "WU BLOCKCHAIN", color: "#3B82F6", domain: "t.me" },
+  unfolded: { name: "UNFOLDED", color: "#F59E0B", domain: "t.me" },
+  zachxbt: { name: "ZACHXBT", color: "#EF4444", domain: "t.me" },
+  watcherguru: { name: "WATCHER GURU", color: "#06B6D4", domain: "t.me" },
+  defillama: { name: "DEFILLAMA", color: "#60A5FA", domain: "t.me" },
   rcrypto: { name: "R/CRYPTOCURRENCY", color: "#FF4500", domain: "reddit.com" },
   rbitcoin: { name: "R/BITCOIN", color: "#F7931A", domain: "reddit.com" },
   rmoonshots: { name: "R/CRYPTOMOONSHOTS", color: "#9B59B6", domain: "reddit.com" },
@@ -182,6 +188,38 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
       {/* SOURCE GRID 4 — Alpha sources */}
       <div className="ct-source-grid">
         {GRID_LAYOUT.grid4.map((key) => {
+          const s = getSource(key);
+          return (
+            <SourceSection
+              key={key}
+              name={s.name}
+              domain={s.domain}
+              color={s.color}
+              articles={s.articles}
+            />
+          );
+        })}
+      </div>
+
+      {/* ALPHA GRID 1 — Telegram channels */}
+      <div className="ct-source-grid">
+        {GRID_LAYOUT.alpha1.map((key) => {
+          const s = getSource(key);
+          return (
+            <SourceSection
+              key={key}
+              name={s.name}
+              domain={s.domain}
+              color={s.color}
+              articles={s.articles}
+            />
+          );
+        })}
+      </div>
+
+      {/* ALPHA GRID 2 — Telegram channels */}
+      <div className="ct-source-grid">
+        {GRID_LAYOUT.alpha2.map((key) => {
           const s = getSource(key);
           return (
             <SourceSection

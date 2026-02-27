@@ -1,4 +1,4 @@
-import { NEWS_SOURCES, COMMUNITY_SOURCES, type SourceConfig } from "@/lib/sources";
+import { NEWS_SOURCES, COMMUNITY_SOURCES, ALPHA_SOURCES, type SourceConfig } from "@/lib/sources";
 import { getOrSetCache } from "@/lib/cache";
 import { fetchJsonWithTimeout, fetchTextWithTimeout } from "@/lib/http";
 
@@ -36,7 +36,7 @@ function sanitizeUrl(raw: string | null | undefined): string {
 }
 
 export function buildEmptyFeedData(): FeedData {
-  const allSources = [...NEWS_SOURCES, ...COMMUNITY_SOURCES];
+  const allSources = [...NEWS_SOURCES, ...COMMUNITY_SOURCES, ...ALPHA_SOURCES];
   const empty: FeedData = {};
   for (const source of allSources) {
     empty[source.key] = {
@@ -201,6 +201,66 @@ async function fetch4chan(sourceKey: string): Promise<Article[]> {
   return threads.slice(0, 15);
 }
 
+async function fetchTelegram(feedUrl: string, sourceKey: string): Promise<Article[]> {
+  const html = await fetchTextWithTimeout(feedUrl, {
+    timeoutMs: 10000,
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+      Accept: "text/html",
+    },
+  });
+
+  const articles: Article[] = [];
+  // Split HTML into message blocks by the message wrapper boundary
+  const blockRegex = /class="tgme_widget_message_wrap[\s\S]*?(?=class="tgme_widget_message_wrap|$)/g;
+  let block;
+  const seen = new Set<string>();
+
+  while ((block = blockRegex.exec(html)) !== null && articles.length < 8) {
+    const chunk = block[0];
+    // Extract post ID
+    const postMatch = chunk.match(/data-post="([^"]+)"/);
+    if (!postMatch) continue;
+    const postId = postMatch[1];
+
+    // Extract message text
+    const textMatch = chunk.match(/class="tgme_widget_message_text[^"]*"[^>]*>([\s\S]*?)<\/div>/);
+    if (!textMatch) continue;
+
+    let text = textMatch[1]
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+      .trim();
+
+    if (text.length < 15) continue;
+    if (text.length > 200) text = text.slice(0, 200).replace(/\s+\S*$/, "") + "…";
+    const dedup = text.slice(0, 50);
+    if (seen.has(dedup)) continue;
+    seen.add(dedup);
+
+    // Extract datetime from <time> tag in this block
+    const timeMatch = chunk.match(/<time[^>]*datetime="([^"]+)"/);
+    const pubDate = timeMatch?.[1] || new Date().toISOString();
+
+    articles.push({
+      title: text,
+      link: sanitizeUrl(`https://t.me/${postId}`),
+      pubDate,
+      source: sourceKey,
+    });
+  }
+
+  // Reverse so newest is first (TG renders oldest first in HTML)
+  articles.reverse();
+  return articles.slice(0, 5);
+}
+
 // --- Decrypt AI filter ---
 // Keep crypto-AI crossover ("Bittensor AI agents") but drop pure-AI ("OpenAI releases GPT-5")
 const AI_NOISE = /\b(openai|anthropic|deepmind|chatgpt|gpt-[0-9]|midjourney|stable.?diffusion|samsung.*\bai\b|nvidia.*(?:earnings|ai\b)|xai\b.*(?:lawsuit|trade.?secret)|ai\s+(?:race|phone|coding|models?|spending|war|safety|benchmark))\b/i;
@@ -224,6 +284,9 @@ async function fetchSource(source: SourceConfig): Promise<Article[]> {
       case "chan":
         articles = await fetch4chan(source.key);
         break;
+      case "telegram":
+        articles = await fetchTelegram(source.feedUrl, source.key);
+        break;
       default:
         articles = [];
     }
@@ -243,7 +306,7 @@ async function fetchSource(source: SourceConfig): Promise<Article[]> {
 export async function getFeedsData(): Promise<FeedData> {
   const cacheKey = "feeds-all";
   return getOrSetCache(cacheKey, 5 * 60 * 1000, async () => {
-    const allSources = [...NEWS_SOURCES, ...COMMUNITY_SOURCES];
+    const allSources = [...NEWS_SOURCES, ...COMMUNITY_SOURCES, ...ALPHA_SOURCES];
     const next: FeedData = {};
 
     const settled = await Promise.allSettled(
@@ -265,7 +328,8 @@ export async function getFeedsData(): Promise<FeedData> {
       }
     }
 
-    for (const source of allSources) {
+    const allSourcesFull = [...NEWS_SOURCES, ...COMMUNITY_SOURCES, ...ALPHA_SOURCES];
+    for (const source of allSourcesFull) {
       if (!next[source.key]) {
         next[source.key] = {
           name: source.name,

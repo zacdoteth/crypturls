@@ -6,7 +6,7 @@ export interface SourceConfig {
   color: string;
   domain: string;
   feedUrl: string;
-  type: "rss" | "reddit" | "chan" | "scrape" | "defillama";
+  type: "rss" | "reddit" | "chan" | "scrape" | "defillama" | "telegram";
 }
 
 export const NEWS_SOURCES: SourceConfig[] = [
@@ -167,12 +167,65 @@ export const COMMUNITY_SOURCES: SourceConfig[] = [
   },
 ];
 
+export const ALPHA_SOURCES: SourceConfig[] = [
+  {
+    key: "treenews",
+    name: "TREE NEWS",
+    color: "#00FF88",
+    domain: "t.me",
+    feedUrl: "https://t.me/s/TreeNewsFeed",
+    type: "telegram",
+  },
+  {
+    key: "wublock",
+    name: "WU BLOCKCHAIN",
+    color: "#3B82F6",
+    domain: "t.me",
+    feedUrl: "https://t.me/s/wublockchainenglish",
+    type: "telegram",
+  },
+  {
+    key: "unfolded",
+    name: "UNFOLDED",
+    color: "#F59E0B",
+    domain: "t.me",
+    feedUrl: "https://t.me/s/unfolded",
+    type: "telegram",
+  },
+  {
+    key: "zachxbt",
+    name: "ZACHXBT",
+    color: "#EF4444",
+    domain: "t.me",
+    feedUrl: "https://t.me/s/investigations",
+    type: "telegram",
+  },
+  {
+    key: "watcherguru",
+    name: "WATCHER GURU",
+    color: "#06B6D4",
+    domain: "t.me",
+    feedUrl: "https://t.me/s/WatcherGuru",
+    type: "telegram",
+  },
+  {
+    key: "defillama",
+    name: "DEFILLAMA",
+    color: "#60A5FA",
+    domain: "t.me",
+    feedUrl: "https://t.me/s/defillama_tg",
+    type: "telegram",
+  },
+];
+
 // Source grid layout config — which sources go in which row
 export const GRID_LAYOUT = {
   grid1: ["coindesk", "theblock", "cointelegraph"],
   grid2: ["decrypt", "cryptoslate", "messari"],
   grid3: ["blockworks", "dlnews", "bitcoinmag"],
   grid4: ["bankless", "thedefiant", "unchained"],
+  alpha1: ["treenews", "wublock", "unfolded"],
+  alpha2: ["zachxbt", "watcherguru", "defillama"],
   community1: ["rcrypto", "rbitcoin", "biz"],
   community2: ["rethfinance", "rmoonshots", "rsolana"],
 };
