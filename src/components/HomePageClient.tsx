@@ -139,7 +139,10 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
 
       <CTTrending />
 
-      {/* PREDICTION MARKETS — Polymarket live odds */}
+      {/* AIXBT SURGING — full-width multi-column */}
+      <AixbtSection />
+
+      {/* PREDICTION MARKETS — Polymarket + Kalshi live odds */}
       <PredictionMarkets />
 
       {/* SOURCE GRID 2 */}
@@ -160,9 +163,6 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
 
       {/* PODCASTS */}
       <PodcastGrid onPlayVideo={setActiveVideo} />
-
-      {/* AIXBT SURGING — full-width multi-column */}
-      <AixbtSection />
 
       {/* CRYPTO SHORTS — separated from YouTube */}
       <ShortsCarousel
