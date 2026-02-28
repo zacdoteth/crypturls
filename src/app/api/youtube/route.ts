@@ -107,7 +107,7 @@ export async function GET() {
       try {
         const r = await Promise.race([
           fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${ch.id}`),
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 6000)),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 10000)),
         ]);
         if (!r.ok) return [];
         return parseAllVideos(await r.text(), ch);
