@@ -17,18 +17,22 @@ export default function StickyPlayer({ video, onClose }: StickyPlayerProps) {
   const [minimized, setMinimized] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
-  const [pos, setPos] = useState({ x: 16, y: 16 });
-  const [width, setWidth] = useState(380);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const [width, setWidth] = useState(340);
   const dragRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef({ x: 0, y: 0 });
-  const resizeStartRef = useRef({ x: 0, startWidth: 380 });
+  const resizeStartRef = useRef({ x: 0, startWidth: 340 });
 
-  // Reset width when switching between Short and regular video
+  // Reset width + position when switching between Short and regular video
   useEffect(() => {
     if (video?.isShort) {
       setWidth(260);
     } else if (video) {
-      setWidth(380);
+      setWidth(340);
+    }
+    // Default to bottom-right
+    if (video) {
+      setPos(null);
     }
   }, [video?.videoId, video?.isShort]);
 
@@ -52,6 +56,10 @@ export default function StickyPlayer({ video, onClose }: StickyPlayerProps) {
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
     offsetRef.current = { x: clientX - rect.left, y: clientY - rect.top };
+    // Switch from bottom-right to absolute left/top on first drag
+    if (!pos) {
+      setPos({ x: rect.left, y: rect.top });
+    }
   };
 
   useEffect(() => {
@@ -142,8 +150,9 @@ export default function StickyPlayer({ video, onClose }: StickyPlayerProps) {
       ref={dragRef}
       className={`ct-sticky-player ${minimized ? "ct-sp-mini" : ""} ${isShort ? "ct-sp-short" : ""}`}
       style={{
-        left: pos.x,
-        top: pos.y,
+        ...(pos
+          ? { left: pos.x, top: pos.y }
+          : { right: 16, bottom: 16 }),
         width: playerWidth,
         userSelect: dragging || resizing ? "none" : undefined,
       }}

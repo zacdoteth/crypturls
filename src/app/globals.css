@@ -112,7 +112,7 @@ html, body { background:#080C18 !important; margin:0; padding:0; }
   background:#080C18; color:#D4D8E8;
   font-family: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
   min-height:100vh; font-size:14px; line-height:1.5;
-  max-width:1200px; margin:0 auto; overflow-x:hidden;
+  max-width:1400px; margin:0 auto; overflow-x:hidden;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
 }
@@ -1191,6 +1191,23 @@ a.ct-c4-item { cursor:pointer; }
 .ct-masonry-card-title--featured {
   font-size:15px; font-weight:800; color:#E0E4F0;
   font-family:'Outfit',sans-serif; line-height:1.35;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LARGE SCREENS (1600px+)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 1600px) {
+  .ct-root { max-width:1600px; font-size:15px; }
+  .ct-featured-title { font-size:16.5px; }
+  .ct-article-title { font-size:14.5px; }
+  .ct-source-name { font-size:13px; }
+  .ct-yt-grid { gap:16px; }
+}
+@media (min-width: 1900px) {
+  .ct-root { max-width:1800px; font-size:15.5px; }
+  .ct-featured-title { font-size:17.5px; }
+  .ct-article-title { font-size:15px; }
+  .ct-yt-title { font-size:14px; }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
