@@ -239,7 +239,7 @@ async function fetchTelegram(feedUrl: string, sourceKey: string): Promise<Articl
       .trim();
 
     if (text.length < 15) continue;
-    if (text.length > 200) text = text.slice(0, 200).replace(/\s+\S*$/, "") + "…";
+    if (text.length > 120) text = text.slice(0, 120).replace(/\s+\S*$/, "") + "…";
     const dedup = text.slice(0, 50);
     if (seen.has(dedup)) continue;
     seen.add(dedup);
