@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Header from "@/components/Header";
 import PriceTicker from "@/components/PriceTicker";
 import FearGreed from "@/components/FearGreed";
@@ -75,11 +75,25 @@ interface ActiveVideo {
   isShort?: boolean;
 }
 
+/** Collect every article link from a FeedData snapshot */
+function collectLinks(data: FeedData): Set<string> {
+  const s = new Set<string>();
+  for (const src of Object.values(data)) {
+    for (const a of src.articles || []) {
+      if (a.link && a.link !== "#") s.add(a.link);
+    }
+  }
+  return s;
+}
+
 export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
   const [feeds, setFeeds] = useState<FeedData>(initialFeeds);
   const [activeVideo, setActiveVideo] = useState<ActiveVideo | null>(null);
   const mountedRef = useRef(true);
   const hasInitialFeeds = Object.keys(initialFeeds).length > 0;
+
+  // Track links present on first load — anything not in here after a refresh is "new"
+  const initialLinksRef = useRef<Set<string>>(collectLinks(initialFeeds));
 
   useEffect(() => {
     return () => {
@@ -98,6 +112,16 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
     }
   }, []);
   useVisibilityPolling(fetchFeeds, 5 * 60 * 1000, !hasInitialFeeds);
+
+  // Compute which links are new (appeared after initial load)
+  const newLinks = useMemo(() => {
+    const current = collectLinks(feeds);
+    const fresh = new Set<string>();
+    for (const link of current) {
+      if (!initialLinksRef.current.has(link)) fresh.add(link);
+    }
+    return fresh;
+  }, [feeds]);
 
   function getSource(key: string): SourceData {
     if (feeds[key]) return feeds[key];
@@ -126,6 +150,7 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
               domain={s.domain}
               color={s.color}
               articles={s.articles}
+              newLinks={newLinks}
             />
           );
         })}
@@ -159,6 +184,7 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
               domain={s.domain}
               color={s.color}
               articles={s.articles}
+              newLinks={newLinks}
             />
           );
         })}
@@ -180,6 +206,7 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
               domain={s.domain}
               color={s.color}
               articles={s.articles}
+              newLinks={newLinks}
             />
           );
         })}
@@ -196,6 +223,7 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
               domain={s.domain}
               color={s.color}
               articles={s.articles}
+              newLinks={newLinks}
             />
           );
         })}
@@ -212,6 +240,7 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
               domain={s.domain}
               color={s.color}
               articles={s.articles}
+              newLinks={newLinks}
             />
           );
         })}
@@ -228,6 +257,7 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
               domain={s.domain}
               color={s.color}
               articles={s.articles}
+              newLinks={newLinks}
             />
           );
         })}
@@ -267,6 +297,7 @@ export default function HomePageClient({ initialFeeds }: HomePageClientProps) {
               domain={s.domain}
               color={s.color}
               articles={s.articles}
+              newLinks={newLinks}
             />
           );
         })}

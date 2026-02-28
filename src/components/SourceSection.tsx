@@ -15,6 +15,7 @@ interface SourceSectionProps {
   color: string;
   articles: Article[];
   paginate?: boolean;
+  newLinks?: Set<string>;
 }
 
 const PAGE_SIZE = 5; // 1 featured + 4 list
@@ -42,6 +43,7 @@ export default function SourceSection({
   color,
   articles,
   paginate,
+  newLinks,
 }: SourceSectionProps) {
   const [page, setPage] = useState(0);
   const totalPages = paginate ? Math.max(1, Math.ceil(articles.length / PAGE_SIZE)) : 1;
@@ -131,6 +133,9 @@ export default function SourceSection({
       {/* Featured first article */}
       {pageArticles.length > 0 && (
         <div className="ct-featured-article">
+          {newLinks?.has(pageArticles[0].link) && (
+            <span className="ct-new-dot" aria-label="New" />
+          )}
           {pageArticles[0].pubDate && (
             <span className="ct-featured-time">{timeAgo(pageArticles[0].pubDate)}</span>
           )}
@@ -154,6 +159,9 @@ export default function SourceSection({
           className="ct-article-row"
           style={{ textDecoration: "none" }}
         >
+          {newLinks?.has(a.link) && (
+            <span className="ct-new-dot" aria-label="New" />
+          )}
           <span className="ct-article-title">{a.title}</span>
           <span className="ct-article-time">{timeAgo(a.pubDate)}</span>
         </a>
