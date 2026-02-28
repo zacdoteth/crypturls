@@ -1050,6 +1050,18 @@ a.ct-c4-item { cursor:pointer; }
   background:linear-gradient(135deg, transparent 50%, #4A507080 50%);
   border-radius:0 0 10px 0;
 }
+/* Theater mode — centered overlay */
+.ct-sp-theater-backdrop {
+  position:fixed; inset:0; z-index:9998;
+  background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+}
+.ct-sticky-player.ct-sp-theater {
+  position:relative; width:min(900px, 85vw);
+  box-shadow:0 16px 64px rgba(0,0,0,.9), 0 0 0 1px rgba(0,255,136,.12);
+}
+.ct-sp-theater .ct-sp-header { cursor:default; }
+.ct-sp-theater .ct-sp-title { font-size:13px; }
 
 /* ── PODCASTS (grid, not scroll) ── */
 .ct-pod-section { padding:12px 14px; border-bottom:1px solid #161B2E; }

@@ -13,8 +13,11 @@ interface StickyPlayerProps {
   onClose: () => void;
 }
 
+type PlayerMode = "pip" | "theater";
+
 export default function StickyPlayer({ video, onClose }: StickyPlayerProps) {
   const [minimized, setMinimized] = useState(false);
+  const [mode, setMode] = useState<PlayerMode>("pip");
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
@@ -30,9 +33,11 @@ export default function StickyPlayer({ video, onClose }: StickyPlayerProps) {
     } else if (video) {
       setWidth(340);
     }
-    // Default to bottom-right
+    // Default to bottom-right PiP
     if (video) {
       setPos(null);
+      setMode("pip");
+      setMinimized(false);
     }
   }, [video?.videoId, video?.isShort]);
 
@@ -140,10 +145,77 @@ export default function StickyPlayer({ video, onClose }: StickyPlayerProps) {
     setTimeout(setVolume, 1500);
   }, []);
 
+  const toggleTheater = () => {
+    if (mode === "pip") {
+      setMode("theater");
+      setMinimized(false);
+      setPos(null);
+    } else {
+      setMode("pip");
+      setPos(null);
+    }
+  };
+
+  const goFullscreen = () => {
+    const iframe = iframeRef.current;
+    if (iframe) {
+      if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+      } else if ((iframe as unknown as { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen) {
+        (iframe as unknown as { webkitRequestFullscreen: () => void }).webkitRequestFullscreen();
+      }
+    }
+  };
+
   const isShort = video?.isShort ?? false;
-  const playerWidth = minimized ? 260 : width;
+  const isTheater = mode === "theater";
+  const playerWidth = minimized ? 260 : isTheater ? undefined : width;
 
   if (!video) return null;
+
+  // Theater mode: centered overlay with backdrop
+  if (isTheater && !minimized) {
+    return (
+      <div className="ct-sp-theater-backdrop" onClick={toggleTheater}>
+        <div
+          ref={dragRef}
+          className={`ct-sticky-player ct-sp-theater ${isShort ? "ct-sp-short" : ""}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="ct-sp-header">
+            <span className="ct-sp-title">{video.title}</span>
+            <div className="ct-sp-controls">
+              <button className="ct-sp-btn" onClick={toggleTheater} title="PiP mode">
+                ⊡
+              </button>
+              <button className="ct-sp-btn" onClick={goFullscreen} title="Fullscreen">
+                ⛶
+              </button>
+              <button className="ct-sp-btn" onClick={onClose}>
+                ✕
+              </button>
+            </div>
+          </div>
+          <div className="ct-sp-embed" style={{ aspectRatio: isShort ? "9/16" : "16/9" }}>
+            <iframe
+              ref={iframeRef}
+              src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0&enablejsapi=1&origin=${typeof window !== "undefined" ? window.location.origin : ""}`}
+              title={video.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              allowFullScreen
+              onLoad={handleIframeLoad}
+              style={{
+                width: "100%",
+                height: "100%",
+                border: "none",
+                borderRadius: "0 0 10px 10px",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -164,6 +236,12 @@ export default function StickyPlayer({ video, onClose }: StickyPlayerProps) {
       >
         <span className="ct-sp-title">{video.title}</span>
         <div className="ct-sp-controls">
+          <button className="ct-sp-btn" onClick={toggleTheater} title="Theater mode">
+            ⊞
+          </button>
+          <button className="ct-sp-btn" onClick={goFullscreen} title="Fullscreen">
+            ⛶
+          </button>
           <button className="ct-sp-btn" onClick={() => setMinimized(!minimized)}>
             {minimized ? "□" : "—"}
           </button>
@@ -178,7 +256,7 @@ export default function StickyPlayer({ video, onClose }: StickyPlayerProps) {
             ref={iframeRef}
             src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0&enablejsapi=1&origin=${typeof window !== "undefined" ? window.location.origin : ""}`}
             title={video.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             allowFullScreen
             onLoad={handleIframeLoad}
             style={{
