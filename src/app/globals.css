@@ -347,8 +347,8 @@ html, body { background:#080C18 !important; margin:0; padding:0; }
   overflow:visible;
   transform-origin:center;
   shape-rendering: geometricPrecision;
-  width:40px;
-  height:40px;
+  width:34px;
+  height:34px;
   transform: rotate(180deg);
   filter: drop-shadow(0 0 11px rgba(0, 255, 149, 0.42)) drop-shadow(0 0 18px rgba(0, 166, 255, 0.3));
   transition: transform .18s ease, filter .18s ease;
@@ -1198,7 +1198,7 @@ a.ct-c4-item { cursor:pointer; }
 @media (max-width: 640px) {
   .ct-root { font-size:13.5px; }
   .ct-logo-text { font-size:17px; letter-spacing:1.5px; }
-  .ct-spider-logo { width:32px; height:32px; }
+  .ct-spider-logo { width:28px; height:28px; }
   .ct-btn-sm { width:26px; height:26px; font-size:12px; }
 
   .ct-source-grid { grid-template-columns:1fr; }
@@ -1239,7 +1239,7 @@ a.ct-c4-item { cursor:pointer; }
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 @media (max-width: 380px) {
   .ct-logo-text { font-size:15px; letter-spacing:1.2px; }
-  .ct-spider-logo { width:28px; height:28px; }
+  .ct-spider-logo { width:24px; height:24px; }
   .ct-chip { font-size:10.5px; padding:4px 9px; }
   .ct-fg-label { font-size:8px; letter-spacing:.5px; }
   .ct-yt-grid { gap:8px; }
