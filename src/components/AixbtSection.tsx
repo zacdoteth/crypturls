@@ -22,7 +22,7 @@ function timeAgo(ts: number): string {
 }
 
 function ProjectRow({ p }: { p: AixbtProject }) {
-  const searchUrl = `https://x.com/search?q=${encodeURIComponent(
+  const searchUrl = `https://x.com/search?q=from%3Aaixbt_agent%20${encodeURIComponent(
     p.ticker ? `$${p.ticker}` : p.name
   )}&src=typed_query&f=top`;
 
